@@ -17,30 +17,38 @@ VIMNAME		= vim
 EXNAME		= ex
 VIEWNAME	= view
 
-CC		= gcc
+CC		= arm-linux-androideabi-gcc
 DEFS		= -DHAVE_CONFIG_H
-CFLAGS		= -g -O2
-CPPFLAGS	= 
+CFLAGS		= -nostdlib -D_FORTIFY_SOURCE=1
+CPPFLAGS	= -I/opt/android/ev/jb/prebuilts/ndk/current/platforms/android-9/arch-arm/usr/include/
 srcdir		= .
 
-LDFLAGS		=  -L/usr/local/lib
-LIBS		= -lm -lnsl  -lncurses
-TAGPRG		= ctags -I INIT+ --fields=+S
+LDFLAGS		= -Wl,-rpath-link=/opt/android/ev/jb/prebuilts/ndk/current/platforms/android-9/arch-arm/usr/lib/ -L/opt/android/ev/jb/prebuilts/ndk/current/platforms/android-9/arch-arm/usr/lib/
+LIBS		= -lm -lc -lncurses -ldl
+TAGPRG		= ctags
 
-CPP		= gcc -E
+CPP		= arm-linux-androideabi-gcc -E
 CPP_MM		= M
 DEPEND_CFLAGS_FILTER = | sed 's+-I */+-isystem /+g'
 X_CFLAGS	= 
-X_LIBS_DIR	= 
+X_LIBS_DIR	=  
 X_PRE_LIBS	= 
 X_EXTRA_LIBS	= 
 X_LIBS		= 
+
+LUA_LIBS	= 
+LUA_SRC		= 
+LUA_OBJ		= 
+LUA_CFLAGS	= 
+LUA_PRO		= 
 
 MZSCHEME_LIBS	= 
 MZSCHEME_SRC	= 
 MZSCHEME_OBJ	= 
 MZSCHEME_CFLAGS	= 
 MZSCHEME_PRO	= 
+MZSCHEME_EXTRA  = 
+MZSCHEME_MZC	= 
 
 PERL		= 
 PERLLIB		= 
@@ -58,6 +66,12 @@ PYTHON_LIBS	=
 PYTHON_CONFDIR	= 
 PYTHON_GETPATH_CFLAGS = 
 
+PYTHON3_SRC	= 
+PYTHON3_OBJ	= 
+PYTHON3_CFLAGS	= 
+PYTHON3_LIBS	= 
+PYTHON3_CONFDIR	= 
+
 TCL		= 
 TCL_SRC		= 
 TCL_OBJ		= 
@@ -71,8 +85,8 @@ HANGULIN_OBJ	=
 WORKSHOP_SRC	= 
 WORKSHOP_OBJ	= 
 
-NETBEANS_SRC	= netbeans.c
-NETBEANS_OBJ	= objects/netbeans.o
+NETBEANS_SRC	= 
+NETBEANS_OBJ	= 
 
 RUBY		= 
 RUBY_SRC	= 
@@ -97,11 +111,14 @@ INSTALLGVIMDIFF	= installgvimdiff
 INSTALL_LANGS	= install-languages
 INSTALL_TOOL_LANGS	= install-tool-languages
 
+### sed command to fix quotes while creating pathdef.c
+QUOTESED        = sed -e 's/[\\"]/\\&/g' -e 's/\\"/"/' -e 's/\\";$$/";/'
+
 ### Line break character as octal number for "tr"
 NL		= "\\012"
 
 ### Top directory for everything
-prefix		= /usr/local
+prefix		= /system
 
 ### Top directory for the binary
 exec_prefix	= ${prefix}
@@ -113,7 +130,7 @@ BINDIR		= ${exec_prefix}/bin
 datarootdir	= ${prefix}/share
 
 ### Prefix for location of data files
-DATADIR		= ${datarootdir}
+DATADIR		= /system/usr/share
 
 ### Prefix for location of man pages
 MANDIR		= ${datarootdir}/man

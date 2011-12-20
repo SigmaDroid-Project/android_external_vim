@@ -11,19 +11,19 @@
 /* #undef HAVE_X11 */
 
 /* Define when terminfo support found */
-/* #undef TERMINFO */
+#define TERMINFO 1
 
 /* Define when termcap.h contains ospeed */
 /* #undef HAVE_OSPEED */
 
 /* Define when ospeed can be extern */
-/* #undef OSPEED_EXTERN */
+#define OSPEED_EXTERN 1
 
 /* Define when termcap.h contains UP, BC and PC */
 /* #undef HAVE_UP_BC_PC */
 
 /* Define when UP, BC and PC can be extern */
-/* #undef UP_BC_PC_EXTERN */
+#define UP_BC_PC_EXTERN 1
 
 /* Define when termcap.h defines outfuntype */
 /* #undef HAVE_OUTFUNTYPE */
@@ -31,11 +31,26 @@
 /* Define when __DATE__ " " __TIME__ can be used */
 #define HAVE_DATE_TIME 1
 
+/* Define when __attribute__((unused)) can be used */
+#define HAVE_ATTRIBUTE_UNUSED 1
+
 /* defined always when using configure */
 #define UNIX 1
 
 /* Defined to the size of an int */
 #define SIZEOF_INT 4
+
+/* Defined to the size of a long */
+#define SIZEOF_LONG 4
+
+/* Defined to the size of off_t */
+#define SIZEOF_OFF_T 4
+
+/* Defined to the size of time_t */
+#define SIZEOF_TIME_T 4
+
+/* Define when wchar_t is only 2 bytes. */
+/* #undef SMALL_WCHAR_T */
 
 /*
  * If we cannot trust one of the following from the libraries, we use our
@@ -50,6 +65,9 @@
 
 /* Define to empty if the keyword does not work.  */
 /* #undef const */
+
+/* Define to empty if the keyword does not work.  */
+/* #undef volatile */
 
 /* Define to `int' if <sys/types.h> doesn't define.  */
 /* #undef mode_t */
@@ -66,6 +84,9 @@
 /* Define to `int' if <sys/types.h> doesn't define.  */
 /* #undef uid_t */
 
+/* Define to `unsigned int' or other type that is 32 bit.  */
+/* #undef uint32_t */
+
 /* Define to `int' if <sys/types.h> doesn't define.  */
 /* #undef gid_t */
 
@@ -74,6 +95,9 @@
 
 /* Define to `unsigned' if <sys/types.h> doesn't define.  */
 /* #undef dev_t */
+
+/* Define on big-endian machines */
+/* #undef WORDS_BIGENDIAN */
 
 /* Define to `unsigned long' if <sys/types.h> doesn't define.  */
 /* #undef rlim_t */
@@ -94,7 +118,7 @@
 /* #undef HAVE_DEV_PTC */
 
 /* Define if you have Sys4 ptys */
-#define HAVE_SVR4_PTYS 1
+/* #undef HAVE_SVR4_PTYS */
 
 /* Define to range of pty names to try */
 /* #undef PTYRANGE0 */
@@ -104,7 +128,7 @@
 #define PTYMODE 0620
 
 /* Define group for pty */
-#define PTYGROUP 1
+#define PTYGROUP system
 
 /* Define as the return type of signal handlers (int or void).  */
 #define RETSIGTYPE void
@@ -116,10 +140,10 @@
 #define HAVE_SIGCONTEXT 1
 
 /* Define if touuper/tolower only work on lower/upercase characters */
-#define BROKEN_TOUPPER 1
+/* #undef BROKEN_TOUPPER */
 
 /* Define if stat() ignores a trailing slash */
-#define STAT_IGNORES_SLASH 1
+/* #undef STAT_IGNORES_SLASH */
 
 /* Define if tgetstr() has a second argument that is (char *) */
 /* #undef TGETSTR_CHAR_P */
@@ -129,15 +153,13 @@
 
 /* Define if the getcwd() function should not be used.  */
 /* #undef BAD_GETCWD */
-#define BAD_GETCWD 1
 
 /* Define if you the function: */
-#define HAVE_BCMP 1
+/* #undef HAVE_BCMP */
 #define HAVE_FCHDIR 1
 #define HAVE_FCHOWN 1
 #define HAVE_FSEEKO 1
 #define HAVE_FSYNC 1
-#define HAVE_FTELLO 1
 #define HAVE_GETCWD 1
 /* #undef HAVE_GETPSEUDOTTY */
 #define HAVE_GETPWNAM 1
@@ -145,11 +167,12 @@
 #define HAVE_GETRLIMIT 1
 #define HAVE_GETTIMEOFDAY 1
 /* #undef HAVE_GETWD */
-#define HAVE_ICONV 1
-#define HAVE_NL_LANGINFO_CODESET 1
+/* #undef HAVE_ICONV */
+/* #undef HAVE_NL_LANGINFO_CODESET */
 #define HAVE_LSTAT 1
 #define HAVE_MEMCMP 1
 #define HAVE_MEMSET 1
+#define HAVE_MKDTEMP 1
 #define HAVE_NANOSLEEP 1
 #define HAVE_OPENDIR 1
 #define HAVE_FLOAT_FUNCS 1
@@ -165,9 +188,9 @@
 #define HAVE_SIGACTION 1
 #define HAVE_SIGALTSTACK 1
 /* #undef HAVE_SIGSET */
-/* #undef HAVE_SIGSETJMP */
-#define HAVE_SIGSTACK 1
-#define HAVE_SIGVEC 1
+#define HAVE_SIGSETJMP 1
+/* #undef HAVE_SIGSTACK */
+/* #undef HAVE_SIGVEC */
 #define HAVE_STRCASECMP 1
 #define HAVE_STRERROR 1
 #define HAVE_STRFTIME 1
@@ -189,6 +212,11 @@
 #define HAVE_UTIME 1
 /* #undef HAVE_BIND_TEXTDOMAIN_CODESET */
 
+/* Define, if needed, for accessing large files. */
+/* #undef _LARGE_FILES */
+/* #undef _FILE_OFFSET_BITS */
+/* #undef _LARGEFILE_SOURCE */
+
 /* Define if you do not have utime(), but do have the utimes() function. */
 #define HAVE_UTIMES 1
 
@@ -197,11 +225,12 @@
 #define HAVE_ERRNO_H 1
 #define HAVE_FCNTL_H 1
 /* #undef HAVE_FRAME_H */
-#define HAVE_ICONV_H 1
-#define HAVE_LANGINFO_H 1
+/* #undef HAVE_ICONV_H */
+#define HAVE_INTTYPES_H 1
+/* #undef HAVE_LANGINFO_H */
 /* #undef HAVE_LIBC_H */
 #define HAVE_LIBGEN_H 1
-#define HAVE_LIBINTL_H 1
+/* #undef HAVE_LIBINTL_H */
 #define HAVE_LOCALE_H 1
 #define HAVE_MATH_H 1
 /* #undef HAVE_NDIR_H */
@@ -210,8 +239,9 @@
 #define HAVE_PWD_H 1
 #define HAVE_SETJMP_H 1
 #define HAVE_SGTTY_H 1
+#define HAVE_STDINT_H 1
 #define HAVE_STRINGS_H 1
-/* #undef HAVE_STROPTS_H 1 */
+/* #undef HAVE_STROPTS_H */
 /* #undef HAVE_SYS_ACCESS_H */
 /* #undef HAVE_SYS_ACL_H */
 /* #undef HAVE_SYS_DIR_H */
@@ -224,16 +254,17 @@
 #define HAVE_SYS_SELECT_H 1
 #define HAVE_SYS_STATFS_H 1
 /* #undef HAVE_SYS_STREAM_H */
-#define HAVE_SYS_SYSCTL_H 1
+/* #undef HAVE_SYS_SYSCTL_H */
 #define HAVE_SYS_SYSINFO_H 1
 /* #undef HAVE_SYS_SYSTEMINFO_H */
 #define HAVE_SYS_TIME_H 1
+#define HAVE_SYS_TYPES_H 1
 #define HAVE_SYS_UTSNAME_H 1
-#define HAVE_WCHAR_H 1
-#define HAVE_WCTYPE_H 1
 /* #undef HAVE_TERMCAP_H */
 #define HAVE_TERMIOS_H 1
-/* #undef HAVE_TERMIO_H */
+#define HAVE_TERMIO_H 1
+#define HAVE_WCHAR_H 1
+#define HAVE_WCTYPE_H 1
 #define HAVE_UNISTD_H 1
 /* #undef HAVE_UTIL_DEBUG_H */
 /* #undef HAVE_UTIL_MSGI18N_H */
@@ -248,7 +279,7 @@
 /* #undef HAVE_XM_NOTEBOOK_H */
 /* #undef HAVE_X11_XPM_H */
 /* #undef HAVE_X11_XMU_EDITRES_H */
-#define HAVE_X11_SM_SMLIB_H 1
+/* #undef HAVE_X11_SM_SMLIB_H */
 
 /* Define to the type of the XpmAttributes type. */
 /* #undef XPMATTRIBUTES_TYPE */
@@ -286,14 +317,35 @@
 /* Define if you want huge features. */
 /* #undef FEAT_HUGE */
 
+/* Define if you want to include the Lua interpreter. */
+/* #undef FEAT_LUA */
+
+/* Define for linking via dlopen() or LoadLibrary() */
+/* #undef DYNAMIC_LUA */
+
 /* Define if you want to include the MzScheme interpreter. */
 /* #undef FEAT_MZSCHEME */
 
 /* Define if you want to include the Perl interpreter. */
 /* #undef FEAT_PERL */
 
+/* Define for linking via dlopen() or LoadLibrary() */
+/* #undef DYNAMIC_PERL */
+
 /* Define if you want to include the Python interpreter. */
 /* #undef FEAT_PYTHON */
+
+/* Define if you want to include the Python3 interpreter. */
+/* #undef FEAT_PYTHON3 */
+
+/* Define for linking via dlopen() or LoadLibrary() */
+/* #undef DYNAMIC_PYTHON */
+
+/* Define for linking via dlopen() or LoadLibrary() */
+/* #undef DYNAMIC_PYTHON3 */
+
+/* Define if dynamic python does not require RTLD_GLOBAL */
+/* #undef PY_NO_RTLD_GLOBAL */
 
 /* Define if you want to include the Ruby interpreter. */
 /* #undef FEAT_RUBY */
@@ -336,9 +388,6 @@
 /* Define if you use KDE and want KDE Toolbar support. */
 /* #undef FEAT_KDETOOLBAR */
 
-/* Define if GTK+ 2 is available. */
-/* #undef HAVE_GTK2 */
-
 /* Define if GTK+ multihead support is available (requires GTK+ >= 2.1.1). */
 /* #undef HAVE_GTK_MULTIHEAD */
 
@@ -370,7 +419,7 @@
 /* #undef FEAT_SUN_WORKSHOP */
 
 /* Define if you want to include NetBeans integration. */
-#define FEAT_NETBEANS_INTG 1
+/* #undef FEAT_NETBEANS_INTG */
 
 /* Define default global runtime path */
 /* #undef RUNTIME_GLOBAL */
@@ -380,3 +429,6 @@
 
 /* Define if you want XSMP interaction as well as vanilla swapfile safety */
 #define USE_XSMP_INTERACT 1
+
+/* Define if fcntl()'s F_SETFD command knows about FD_CLOEXEC */
+#define HAVE_FD_CLOEXEC 1

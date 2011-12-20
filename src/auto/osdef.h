@@ -19,7 +19,7 @@
 #endif
 #ifdef HAVE_FSEEKO
 #endif
-#ifdef HAVE_FTELLO
+#ifdef HAVE_FSEEKO
 #endif
 #ifndef ferror	/* let me say it again: "macros should never have prototypes" */
 #endif
@@ -78,7 +78,6 @@ extern RETSIGTYPE (*sigset __ARGS((int, RETSIGTYPE (*func) SIGPROTOARG))) __ARGS
 
 #if defined(HAVE_SETJMP_H)
 # ifdef HAVE_SIGSETJMP
-extern int	sigsetjmp __ARGS((sigjmp_buf, int));
 # else
 # endif
 #endif
@@ -88,6 +87,7 @@ extern int	sigsetjmp __ARGS((sigjmp_buf, int));
 #endif
 #if defined(HAVE_GETCWD) && !defined(sun) && !defined(__TANDEM)
 #else
+extern char	*getwd __ARGS((char *));
 #endif
 #ifndef __alpha	/* suggested by Campbell */
 #endif
@@ -110,11 +110,12 @@ extern int	sigsetjmp __ARGS((sigjmp_buf, int));
 #ifndef __TANDEM
 #endif
 
-extern int  tgetent __ARGS((char *, char *));
-extern int  tgetnum __ARGS((char *));
-extern int  tgetflag __ARGS((char *));
-extern char *tgoto __ARGS((char *, int, int));
-extern int  tputs __ARGS((char *, int, int (*)(int)));
+
+extern int	tgetent __ARGS((char *, char *));
+extern int	tgetnum __ARGS((char *));
+extern int	tgetflag __ARGS((char *));
+extern char	*tgoto __ARGS((char *, int, int));
+extern int	tputs __ARGS((char *, int, int (*)(int)));
 
 #ifdef HAVE_TERMIOS_H
 #endif
