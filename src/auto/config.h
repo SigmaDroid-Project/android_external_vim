@@ -181,7 +181,7 @@
 #define HAVE_READLINK 1
 #define HAVE_RENAME 1
 #define HAVE_SELECT 1
-/* #undef HAVE_SELINUX */
+#define HAVE_SELINUX 1
 #define HAVE_SETENV 1
 #define HAVE_SETPGID 1
 #define HAVE_SETSID 1
