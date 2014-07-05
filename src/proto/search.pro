@@ -32,6 +32,7 @@ int current_block __ARGS((oparg_T *oap, long count, int include, int what, int o
 int current_tagblock __ARGS((oparg_T *oap, long count_arg, int include));
 int current_par __ARGS((oparg_T *oap, long count, int include, int type));
 int current_quote __ARGS((oparg_T *oap, long count, int include, int quotechar));
+int current_search __ARGS((long count, int forward));
 int linewhite __ARGS((linenr_T lnum));
 void find_pattern_in_path __ARGS((char_u *ptr, int dir, int len, int whole, int skip_comments, int type, long count, int action, linenr_T start_lnum, linenr_T end_lnum));
 int read_viminfo_search_pattern __ARGS((vir_T *virp, int force));

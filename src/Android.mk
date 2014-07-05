@@ -27,6 +27,7 @@ LOCAL_SRC_FILES := \
 	if_xcmdsrv.c \
 	main.c \
 	mark.c \
+	mbyte.c \
 	memfile.c \
 	memline.c \
 	menu.c \
@@ -34,7 +35,6 @@ LOCAL_SRC_FILES := \
 	misc1.c \
 	misc2.c \
 	move.c \
-	mbyte.c \
 	normal.c \
 	ops.c \
 	option.c \
@@ -55,6 +55,10 @@ LOCAL_SRC_FILES := \
 	version.c \
 	window.c
 
+# Unused in our config
+#LOCAL_SRC_FILES += \
+#	netbeans.c pty.c
+
 LOCAL_C_INCLUDES += \
 	external/libselinux/include \
 	$(LOCAL_PATH) \
@@ -64,15 +68,16 @@ LOCAL_C_INCLUDES += \
 LOCAL_SHARED_LIBRARIES += \
 	libselinux \
 	libncurses \
+	libm \
 	libdl
 
 LOCAL_CFLAGS += \
 	-DHAVE_CONFIG_H \
-	-DSYS_VIMRC_FILE=\"/system/etc/vimrc\" \
-	-lncurses
+	-DSYS_VIMRC_FILE=\"/system/etc/vimrc\"
+
+LOCAL_LDLIBS := -ldl
 
 LOCAL_MODULE := vim
 LOCAL_MODULE_TAGS := eng
 LOCAL_MODULE_PATH := $(TARGET_OUT_OPTIONAL_EXECUTABLES)
 include $(BUILD_EXECUTABLE)
-

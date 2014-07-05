@@ -99,6 +99,11 @@
 # define MB_TOUPPER(c)	TOUPPER_LOC(c)
 #endif
 
+/* Use our own isdigit() replacement, because on MS-Windows isdigit() returns
+ * non-zero for superscript 1.  Also avoids that isdigit() crashes for numbers
+ * below 0 and above 255.  */
+#define VIM_ISDIGIT(c) ((unsigned)(c) - '0' < 10)
+
 /* Like isalpha() but reject non-ASCII characters.  Can't be used with a
  * special key (negative value). */
 #ifdef EBCDIC
@@ -107,17 +112,11 @@
 # define ASCII_ISLOWER(c) islower(c)
 # define ASCII_ISUPPER(c) isupper(c)
 #else
-# define ASCII_ISALPHA(c) ((c) < 0x7f && isalpha(c))
-# define ASCII_ISALNUM(c) ((c) < 0x7f && isalnum(c))
-# define ASCII_ISLOWER(c) ((c) < 0x7f && islower(c))
-# define ASCII_ISUPPER(c) ((c) < 0x7f && isupper(c))
+# define ASCII_ISLOWER(c) ((unsigned)(c) - 'a' < 26)
+# define ASCII_ISUPPER(c) ((unsigned)(c) - 'A' < 26)
+# define ASCII_ISALPHA(c) (ASCII_ISUPPER(c) || ASCII_ISLOWER(c))
+# define ASCII_ISALNUM(c) (ASCII_ISALPHA(c) || VIM_ISDIGIT(c))
 #endif
-
-/* Use our own isdigit() replacement, because on MS-Windows isdigit() returns
- * non-zero for superscript 1.  Also avoids that isdigit() crashes for numbers
- * below 0 and above 255.  For complicated arguments and in/decrement use
- * vim_isdigit() instead. */
-#define VIM_ISDIGIT(c) ((c) >= '0' && (c) <= '9')
 
 /* macro version of chartab().
  * Only works with values 0-255!
@@ -259,24 +258,29 @@
  * PTR2CHAR(): get character from pointer.
  */
 #ifdef FEAT_MBYTE
+/* Get the length of the character p points to */
+# define MB_PTR2LEN(p)		(has_mbyte ? (*mb_ptr2len)(p) : 1)
 /* Advance multi-byte pointer, skip over composing chars. */
 # define mb_ptr_adv(p)	    p += has_mbyte ? (*mb_ptr2len)(p) : 1
 /* Advance multi-byte pointer, do not skip over composing chars. */
 # define mb_cptr_adv(p)	    p += enc_utf8 ? utf_ptr2len(p) : has_mbyte ? (*mb_ptr2len)(p) : 1
-/* Backup multi-byte pointer. */
+/* Backup multi-byte pointer. Only use with "p" > "s" ! */
 # define mb_ptr_back(s, p)  p -= has_mbyte ? ((*mb_head_off)(s, p - 1) + 1) : 1
 /* get length of multi-byte char, not including composing chars */
 # define mb_cptr2len(p)	    (enc_utf8 ? utf_ptr2len(p) : (*mb_ptr2len)(p))
 
 # define MB_COPY_CHAR(f, t) if (has_mbyte) mb_copy_char(&f, &t); else *t++ = *f++
 # define MB_CHARLEN(p)	    (has_mbyte ? mb_charlen(p) : (int)STRLEN(p))
+# define MB_CHAR2LEN(c)	    (has_mbyte ? mb_char2len(c) : 1)
 # define PTR2CHAR(p)	    (has_mbyte ? mb_ptr2char(p) : (int)*(p))
 #else
+# define MB_PTR2LEN(p)		1
 # define mb_ptr_adv(p)		++p
 # define mb_cptr_adv(p)		++p
 # define mb_ptr_back(s, p)	--p
 # define MB_COPY_CHAR(f, t)	*t++ = *f++
 # define MB_CHARLEN(p)		STRLEN(p)
+# define MB_CHAR2LEN(c)		1
 # define PTR2CHAR(p)		((int)*(p))
 #endif
 
@@ -284,4 +288,18 @@
 # define DO_AUTOCHDIR if (p_acd) do_autochdir();
 #else
 # define DO_AUTOCHDIR
+#endif
+
+#if defined(FEAT_SCROLLBIND) && defined(FEAT_CURSORBIND)
+# define RESET_BINDING(wp)  (wp)->w_p_scb = FALSE; (wp)->w_p_crb = FALSE
+#else
+# if defined(FEAT_SCROLLBIND)
+#  define RESET_BINDING(wp)  (wp)->w_p_scb = FALSE
+# else
+#  if defined(FEAT_CURSORBIND)
+#   define RESET_BINDING(wp)  (wp)->w_p_crb = FALSE
+#  else
+#   define RESET_BINDING(wp)
+#  endif
+# endif
 #endif

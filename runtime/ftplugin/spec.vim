@@ -1,12 +1,16 @@
 " Plugin to update the %changelog section of RPM spec files
 " Filename: spec.vim
-" Maintainer: Gustavo Niemeyer <niemeyer@conectiva.com>
-" Last Change: Wed, 10 Apr 2002 16:28:52 -0300
+" Maintainer: Igor Gnatenko i.gnatenko.brain@gmail.com
+" Former Maintainer: Gustavo Niemeyer <niemeyer@conectiva.com> (until March 2014)
+" Last Change: Sun Mar 2 11:24 MSK 2014 Igor Gnatenko
 
 if exists("b:did_ftplugin")
 	finish
 endif
 let b:did_ftplugin = 1
+
+let s:cpo_save = &cpo
+set cpo&vim
 
 if !exists("no_plugin_maps") && !exists("no_spec_maps")
 	if !hasmapto("<Plug>SpecChangelog")
@@ -147,6 +151,10 @@ if !exists("*s:ParseRpmVars")
 		execute a:strline
 		let definestr = "^[ \t]*%define[ \t]\\+" . varname . "[ \t]\\+\\(.*\\)$"
 		let linenum = search(definestr, "bW")
+		if (linenum == 0)
+			let definestr = substitute(definestr, "%define", "%global", "")
+			let linenum = search(definestr, "bW")
+		endif
 		if (linenum != -1)
 			let ret = ret .  substitute(getline(linenum), definestr, "\\1", "")
 		else
@@ -166,3 +174,7 @@ let b:match_words =
   \ '^Name:^%description:^%clean:^%setup:^%build:^%install:^%files:' .
   \ '^%package:^%preun:^%postun:^%changelog'
 
+let &cpo = s:cpo_save
+unlet s:cpo_save
+
+let b:undo_ftplugin = "unlet! b:match_ignorecase b:match_words"

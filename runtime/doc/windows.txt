@@ -1,4 +1,4 @@
-*windows.txt*   For Vim version 7.3.  Last change: 2010 Aug 15
+*windows.txt*   For Vim version 7.4.  Last change: 2014 Mar 25
 
 
 		  VIM REFERENCE MANUAL    by Bram Moolenaar
@@ -132,13 +132,20 @@ that have termcap codes for italics.
 CTRL-W s						*CTRL-W_s*
 CTRL-W S						*CTRL-W_S*
 CTRL-W CTRL-S						*CTRL-W_CTRL-S*
-:[N]sp[lit] [++opt] [+cmd]				*:sp* *:split*
+:[N]sp[lit] [++opt] [+cmd] [file]			*:sp* *:split*
 		Split current window in two.  The result is two viewports on
-		the same file.  Make new window N high (default is to use half
-		the height of the current window).  Reduces the current window
-		height to create room (and others, if the 'equalalways' option
-		is set, 'eadirection' isn't "hor", and one of them is higher
-		than the current or the new window).
+		the same file.
+		
+		Make the new window N high (default is to use half the height
+		of the current window).  Reduces the current window height to
+		create room (and others, if the 'equalalways' option is set,
+		'eadirection' isn't "hor", and one of them is higher than the
+		current or the new window).
+
+		If [file] is given it will be edited in the new window.  If it
+		is not loaded in any buffer, it will be read.  Else the new
+		window will use the already loaded buffer.
+
 		Note: CTRL-S does not work on all terminals and might block
 		further input, use CTRL-Q to get going again.
 		Also see |++opt| and |+cmd|.
@@ -174,7 +181,8 @@ CTRL-W CTRL_N						*CTRL-W_CTRL-N*
 		2. WinEnter for the new window
 		3. BufLeave for the current buffer
 		4. BufEnter for the new buffer
-		This behaves like a ":split" first, and then a ":e" command.
+		This behaves like a ":split" first, and then an ":enew"
+		command.
 
 :[N]vne[w] [++opt] [+cmd] [file]			*:vne* *:vnew*
 		Like |:new|, but split vertically.  If 'equalalways' is set
@@ -183,7 +191,8 @@ CTRL-W CTRL_N						*CTRL-W_CTRL-N*
 
 :[N]new [++opt] [+cmd] {file}
 :[N]sp[lit] [++opt] [+cmd] {file}			*:split_f*
-		Create a new window and start editing file {file} in it.
+		Create a new window and start editing file {file} in it.  This
+		behaves like a ":split" first, and then an ":e" command.
 		If [+cmd] is given, execute the command when the file has been
 		loaded |+cmd|.
 		Also see |++opt|.
@@ -246,7 +255,7 @@ window will appear.
 
 These command modifiers can be combined to make a vertically split window
 occupy the full height.  Example: >
-	:vertical topleft edit tags
+	:vertical topleft split tags
 Opens a vertically split, full-height window on the "tags" file at the far
 left of the Vim window.
 
@@ -937,9 +946,9 @@ list of buffers. |unlisted-buffer|
 :buffers[!]					*:buffers* *:ls*
 :ls[!]		Show all buffers.  Example:
 
-			1 #h  "/test/text"		line 1 ~
-			2u    "asdf"			line 0 ~
-			3 %a+ "version.c"		line 1 ~
+			1 #h   "/test/text"		line 1 ~
+			2u     "asdf"			line 0 ~
+			3 %a + "version.c"		line 1 ~
 
 		When the [!] is included the list will show unlisted buffers
 		(the term "unlisted" is a bit confusing then...).

@@ -17,13 +17,13 @@
 /* #undef HAVE_OSPEED */
 
 /* Define when ospeed can be extern */
-#define OSPEED_EXTERN 1
+/* #undef OSPEED_EXTERN */
 
 /* Define when termcap.h contains UP, BC and PC */
 /* #undef HAVE_UP_BC_PC */
 
 /* Define when UP, BC and PC can be extern */
-#define UP_BC_PC_EXTERN 1
+/* #undef UP_BC_PC_EXTERN */
 
 /* Define when termcap.h defines outfuntype */
 /* #undef HAVE_OUTFUNTYPE */
@@ -38,16 +38,16 @@
 #define UNIX 1
 
 /* Defined to the size of an int */
-#define SIZEOF_INT 4
+#define VIM_SIZEOF_INT 4
 
 /* Defined to the size of a long */
-#define SIZEOF_LONG 4
+#define VIM_SIZEOF_LONG 8
 
 /* Defined to the size of off_t */
-#define SIZEOF_OFF_T 4
+#define SIZEOF_OFF_T 8
 
 /* Defined to the size of time_t */
-#define SIZEOF_TIME_T 4
+#define SIZEOF_TIME_T 8
 
 /* Define when wchar_t is only 2 bytes. */
 /* #undef SMALL_WCHAR_T */
@@ -61,7 +61,7 @@
 /* #undef USEMEMCPY */
 
 /* Define when "man -s 2" is to be used */
-#define USEMAN_S 1
+/* #undef USEMAN_S */
 
 /* Define to empty if the keyword does not work.  */
 /* #undef const */
@@ -118,17 +118,17 @@
 /* #undef HAVE_DEV_PTC */
 
 /* Define if you have Sys4 ptys */
-/* #undef HAVE_SVR4_PTYS */
+#define HAVE_SVR4_PTYS 1
 
 /* Define to range of pty names to try */
 /* #undef PTYRANGE0 */
 /* #undef PTYRANGE1 */
 
 /* Define mode for pty */
-#define PTYMODE 0620
+/* #undef PTYMODE */
 
 /* Define group for pty */
-#define PTYGROUP system
+/* #undef PTYGROUP */
 
 /* Define as the return type of signal handlers (int or void).  */
 #define RETSIGTYPE void
@@ -149,24 +149,25 @@
 /* #undef TGETSTR_CHAR_P */
 
 /* Define if tgetent() returns zero for an error */
-/* #undef TGETENT_ZERO_ERR */
+/* #undef TGETENT_ZERO_ERR 0 */
 
 /* Define if the getcwd() function should not be used.  */
 /* #undef BAD_GETCWD */
 
 /* Define if you the function: */
-/* #undef HAVE_BCMP */
+#define HAVE_BCMP 1
 #define HAVE_FCHDIR 1
 #define HAVE_FCHOWN 1
 #define HAVE_FSEEKO 1
 #define HAVE_FSYNC 1
 #define HAVE_GETCWD 1
 /* #undef HAVE_GETPSEUDOTTY */
+/* #undef HAVE_GETPWENT */
 #define HAVE_GETPWNAM 1
 #define HAVE_GETPWUID 1
 #define HAVE_GETRLIMIT 1
 #define HAVE_GETTIMEOFDAY 1
-/* #undef HAVE_GETWD */
+#define HAVE_GETWD 1
 /* #undef HAVE_ICONV */
 /* #undef HAVE_NL_LANGINFO_CODESET */
 #define HAVE_LSTAT 1
@@ -188,9 +189,10 @@
 #define HAVE_SIGACTION 1
 #define HAVE_SIGALTSTACK 1
 /* #undef HAVE_SIGSET */
-#define HAVE_SIGSETJMP 1
-/* #undef HAVE_SIGSTACK */
-/* #undef HAVE_SIGVEC */
+/* #undef HAVE_SIGSETJMP */
+#define HAVE_SIGSTACK 1
+#define HAVE_SIGVEC 1
+/* #undef HAVE_SMACK */
 #define HAVE_STRCASECMP 1
 #define HAVE_STRERROR 1
 #define HAVE_STRFTIME 1
@@ -210,7 +212,7 @@
 #define HAVE_ISWUPPER 1
 #define HAVE_USLEEP 1
 #define HAVE_UTIME 1
-/* #undef HAVE_BIND_TEXTDOMAIN_CODESET */
+#define HAVE_BIND_TEXTDOMAIN_CODESET 1
 
 /* Define, if needed, for accessing large files. */
 /* #undef _LARGE_FILES */
@@ -254,7 +256,7 @@
 #define HAVE_SYS_SELECT_H 1
 #define HAVE_SYS_STATFS_H 1
 /* #undef HAVE_SYS_STREAM_H */
-/* #undef HAVE_SYS_SYSCTL_H */
+#define HAVE_SYS_SYSCTL_H 1
 #define HAVE_SYS_SYSINFO_H 1
 /* #undef HAVE_SYS_SYSTEMINFO_H */
 #define HAVE_SYS_TIME_H 1
@@ -347,8 +349,14 @@
 /* Define if dynamic python does not require RTLD_GLOBAL */
 /* #undef PY_NO_RTLD_GLOBAL */
 
+/* Define if dynamic python3 does not require RTLD_GLOBAL */
+/* #undef PY3_NO_RTLD_GLOBAL */
+
 /* Define if you want to include the Ruby interpreter. */
 /* #undef FEAT_RUBY */
+
+/* Define for linking via dlopen() or LoadLibrary() */
+/* #undef DYNAMIC_RUBY */
 
 /* Define if you want to include the Tcl interpreter. */
 /* #undef FEAT_TCL */
@@ -358,6 +366,7 @@
 
 /* Define if you want to add support for ACL */
 /* #undef HAVE_POSIX_ACL */
+/* #undef HAVE_SOLARIS_ZFS_ACL */
 /* #undef HAVE_SOLARIS_ACL */
 /* #undef HAVE_AIX_ACL */
 
@@ -410,7 +419,7 @@
 #define HAVE_DLSYM 1
 
 /* Define if we have dl.h. */
-/* #undef HAVE_DL_H */
+#define HAVE_DL_H 1
 
 /* Define if we have shl_load() */
 /* #undef HAVE_SHL_LOAD */
@@ -432,3 +441,9 @@
 
 /* Define if fcntl()'s F_SETFD command knows about FD_CLOEXEC */
 #define HAVE_FD_CLOEXEC 1
+
+/* Define if you want Cygwin to use the WIN32 clipboard, not compatible with X11*/
+/* #undef FEAT_CYGWIN_WIN32_CLIPBOARD */
+
+/* Define if we have AvailabilityMacros.h on Mac OS X */
+/* #undef HAVE_AVAILABILITYMACROS_H */

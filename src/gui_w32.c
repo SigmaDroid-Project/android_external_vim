@@ -198,11 +198,17 @@ static BalloonEval  *cur_beval = NULL;
 static UINT_PTR	    BevalTimerId = 0;
 static DWORD	    LastActivity = 0;
 
+
+/* cproto fails on missing include files */
+#ifndef PROTO
+
 /*
  * excerpts from headers since this may not be presented
  * in the extremely old compilers
  */
-#include <pshpack1.h>
+# include <pshpack1.h>
+
+#endif
 
 typedef struct _DllVersionInfo
 {
@@ -213,7 +219,9 @@ typedef struct _DllVersionInfo
     DWORD dwPlatformID;
 } DLLVERSIONINFO;
 
-#include <poppack.h>
+#ifndef PROTO
+# include <poppack.h>
+#endif
 
 typedef struct tagTOOLINFOA_NEW
 {
@@ -289,13 +297,13 @@ typedef struct tagNMTTDISPINFOW {
 
 #ifdef FEAT_MENU
 static UINT	s_menu_id = 100;
+#endif
 
 /*
  * Use the system font for dialogs and tear-off menus.  Remove this line to
  * use DLG_FONT_NAME.
  */
-# define USE_SYSMENU_FONT
-#endif
+#define USE_SYSMENU_FONT
 
 #define VIM_NAME	"vim"
 #define VIM_CLASS	"Vim"
@@ -336,11 +344,13 @@ static UINT msh_msgmousewheel = 0;
 static int	s_usenewlook;	    /* emulate W95/NT4 non-bold dialogs */
 #ifdef FEAT_TOOLBAR
 static void initialise_toolbar(void);
+static LRESULT CALLBACK toolbar_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 static int get_toolbar_bitmap(vimmenu_T *menu);
 #endif
 
 #ifdef FEAT_GUI_TABLINE
 static void initialise_tabline(void);
+static LRESULT CALLBACK tabline_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 #endif
 
 #ifdef FEAT_MBYTE_IME
@@ -798,7 +808,7 @@ _WndProc(
 		if (pt.y < rect.top)
 		{
 		    show_tabline_popup_menu();
-		    return 0;
+		    return 0L;
 		}
 	    }
 	    return MyWindowProc(hwnd, uMsg, wParam, lParam);
@@ -828,7 +838,10 @@ _WndProc(
 
     case WM_ENDSESSION:
 	if (wParam)	/* system only really goes down when wParam is TRUE */
+	{
 	    _OnEndSession();
+	    return 0L;
+	}
 	break;
 
     case WM_CHAR:
@@ -866,7 +879,7 @@ _WndProc(
 	 * are received, mouse pointer remains hidden. */
 	return MyWindowProc(hwnd, uMsg, wParam, lParam);
 #else
-	return 0;
+	return 0L;
 #endif
 
     case WM_SIZING:	/* HANDLE_MSG doesn't seem to handle this one */
@@ -874,7 +887,7 @@ _WndProc(
 
     case WM_MOUSEWHEEL:
 	_OnMouseWheel(hwnd, HIWORD(wParam));
-	break;
+	return 0L;
 
 	/* Notification for change in SystemParametersInfo() */
     case WM_SETTINGCHANGE:
@@ -987,13 +1000,19 @@ _WndProc(
 	    case TCN_SELCHANGE:
 		if (gui_mch_showing_tabline()
 				  && ((LPNMHDR)lParam)->hwndFrom == s_tabhwnd)
+		{
 		    send_tabline_event(TabCtrl_GetCurSel(s_tabhwnd) + 1);
+		    return 0L;
+		}
 		break;
 
 	    case NM_RCLICK:
 		if (gui_mch_showing_tabline()
 			&& ((LPNMHDR)lParam)->hwndFrom == s_tabhwnd)
+		{
 		    show_tabline_popup_menu();
+		    return 0L;
+		}
 		break;
 # endif
 	    default:
@@ -1037,6 +1056,7 @@ _WndProc(
 		out_flush();
 		did_menu_tip = TRUE;
 	    }
+	    return 0L;
 	}
 	break;
 #endif
@@ -1079,18 +1099,19 @@ _WndProc(
     case WM_IME_NOTIFY:
 	if (!_OnImeNotify(hwnd, (DWORD)wParam, (DWORD)lParam))
 	    return MyWindowProc(hwnd, uMsg, wParam, lParam);
-	break;
+	return 1L;
+
     case WM_IME_COMPOSITION:
 	if (!_OnImeComposition(hwnd, wParam, lParam))
 	    return MyWindowProc(hwnd, uMsg, wParam, lParam);
-	break;
+	return 1L;
 #endif
 
     default:
 	if (uMsg == msh_msgmousewheel && msh_msgmousewheel != 0)
 	{   /* handle MSH_MOUSEWHEEL messages for Intellimouse */
 	    _OnMouseWheel(hwnd, HIWORD(wParam));
-	    break;
+	    return 0L;
 	}
 #ifdef MSWIN_FIND_REPLACE
 	else if (uMsg == s_findrep_msg && s_findrep_msg != 0)
@@ -1101,7 +1122,7 @@ _WndProc(
 	return MyWindowProc(hwnd, uMsg, wParam, lParam);
     }
 
-    return 1;
+    return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
 /*
@@ -1239,7 +1260,7 @@ gui_mch_prepare(int *argc, char **argv)
 
 #ifdef FEAT_NETBEANS_INTG
     {
-	/* stolen from gui_x11.x */
+	/* stolen from gui_x11.c */
 	int arg;
 
 	for (arg = 1; arg < *argc; arg++)
@@ -1260,7 +1281,7 @@ gui_mch_prepare(int *argc, char **argv)
 
     /* try and load the user32.dll library and get the entry points for
      * multi-monitor-support. */
-    if ((user32_lib = LoadLibrary("User32.dll")) != NULL)
+    if ((user32_lib = vimLoadLib("User32.dll")) != NULL)
     {
 	pMonitorFromWindow = (TMonitorFromWindow)GetProcAddress(user32_lib,
 							 "MonitorFromWindow");
@@ -1270,6 +1291,25 @@ gui_mch_prepare(int *argc, char **argv)
 	pGetMonitorInfo = (TGetMonitorInfo)GetProcAddress(user32_lib,
 							  "GetMonitorInfoA");
     }
+
+#ifdef FEAT_MBYTE
+    /* If the OS is Windows NT, use wide functions;
+     * this enables common dialogs input unicode from IME. */
+    if (os_version.dwPlatformId == VER_PLATFORM_WIN32_NT)
+    {
+	pDispatchMessage = DispatchMessageW;
+	pGetMessage = GetMessageW;
+	pIsDialogMessage = IsDialogMessageW;
+	pPeekMessage = PeekMessageW;
+    }
+    else
+    {
+	pDispatchMessage = DispatchMessageA;
+	pGetMessage = GetMessageA;
+	pIsDialogMessage = IsDialogMessageA;
+	pPeekMessage = PeekMessageA;
+    }
+#endif
 }
 
 /*
@@ -1379,7 +1419,8 @@ gui_mch_init(void)
 	    s_hwnd = CreateWindowEx(
 		WS_EX_MDICHILD,
 		szVimWndClass, "Vim MSWindows GUI",
-		WS_OVERLAPPEDWINDOW | WS_CHILD | WS_CLIPSIBLINGS | 0xC000,
+		WS_OVERLAPPEDWINDOW | WS_CHILD
+				 | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | 0xC000,
 		gui_win_x == -1 ? CW_USEDEFAULT : gui_win_x,
 		gui_win_y == -1 ? CW_USEDEFAULT : gui_win_y,
 		100,				/* Any value will do */
@@ -1410,7 +1451,8 @@ gui_mch_init(void)
 	 * titlebar, it will be reparented below. */
 	s_hwnd = CreateWindow(
 		szVimWndClass, "Vim MSWindows GUI",
-		win_socket_id == 0 ? WS_OVERLAPPEDWINDOW : WS_POPUP,
+		(win_socket_id == 0 ? WS_OVERLAPPEDWINDOW : WS_POPUP)
+					  | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
 		gui_win_x == -1 ? CW_USEDEFAULT : gui_win_x,
 		gui_win_y == -1 ? CW_USEDEFAULT : gui_win_y,
 		100,				/* Any value will do */
@@ -1573,6 +1615,15 @@ gui_mch_init(void)
 # endif
 #endif
 
+#ifdef FEAT_EVAL
+# ifndef HandleToLong
+/* HandleToLong() only exists in compilers that can do 64 bit builds */
+#  define HandleToLong(h) ((long)(h))
+# endif
+    /* set the v:windowid variable */
+    set_vim_var_nr(VV_WINDOWID, HandleToLong(s_hwnd));
+#endif
+
 theend:
     /* Display any pending error messages */
     display_errors();
@@ -1620,16 +1671,14 @@ gui_mch_set_shellsize(int width, int height,
 {
     RECT	workarea_rect;
     int		win_width, win_height;
-    int		win_xpos, win_ypos;
     WINDOWPLACEMENT wndpl;
-    int		workarea_left;
 
     /* Try to keep window completely on screen. */
     /* Get position of the screen work area.  This is the part that is not
      * used by the taskbar or appbars. */
     get_work_area(&workarea_rect);
 
-    /* Get current posision of our window.  Note that the .left and .top are
+    /* Get current position of our window.  Note that the .left and .top are
      * relative to the work area.  */
     wndpl.length = sizeof(WINDOWPLACEMENT);
     GetWindowPlacement(s_hwnd, &wndpl);
@@ -1644,48 +1693,43 @@ gui_mch_set_shellsize(int width, int height,
 	GetWindowPlacement(s_hwnd, &wndpl);
     }
 
-    win_xpos = wndpl.rcNormalPosition.left;
-    win_ypos = wndpl.rcNormalPosition.top;
-
     /* compute the size of the outside of the window */
-    win_width = width + GetSystemMetrics(SM_CXFRAME) * 2;
-    win_height = height + GetSystemMetrics(SM_CYFRAME) * 2
+    win_width = width + (GetSystemMetrics(SM_CXFRAME) +
+                         GetSystemMetrics(SM_CXPADDEDBORDER)) * 2;
+    win_height = height + (GetSystemMetrics(SM_CYFRAME) +
+                           GetSystemMetrics(SM_CXPADDEDBORDER)) * 2
 			+ GetSystemMetrics(SM_CYCAPTION)
 #ifdef FEAT_MENU
 			+ gui_mswin_get_menu_height(FALSE)
 #endif
 			;
 
-    /* There is an inconsistency when using two monitors and Vim is on the
-     * second (right) one: win_xpos will be the offset from the workarea of
-     * the left monitor.  While with one monitor it's the offset from the
-     * workarea (including a possible taskbar on the left).  Detect the second
-     * monitor by checking for the left offset to be quite big. */
-    if (workarea_rect.left > 300)
-	workarea_left = 0;
-    else
-	workarea_left = workarea_rect.left;
+    /* The following should take care of keeping Vim on the same monitor, no
+     * matter if the secondary monitor is left or right of the primary
+     * monitor. */
+    wndpl.rcNormalPosition.right = wndpl.rcNormalPosition.left + win_width;
+    wndpl.rcNormalPosition.bottom = wndpl.rcNormalPosition.top + win_height;
 
-    /* If the window is going off the screen, move it on to the screen.
-     * win_xpos and win_ypos are relative to the workarea. */
+    /* If the window is going off the screen, move it on to the screen. */
     if ((direction & RESIZE_HOR)
-	    && workarea_left + win_xpos + win_width > workarea_rect.right)
-	win_xpos = workarea_rect.right - win_width - workarea_left;
+	    && wndpl.rcNormalPosition.right > workarea_rect.right)
+	OffsetRect(&wndpl.rcNormalPosition,
+		workarea_rect.right - wndpl.rcNormalPosition.right, 0);
 
-    if ((direction & RESIZE_HOR) && win_xpos < 0)
-	win_xpos = 0;
+    if ((direction & RESIZE_HOR)
+	    && wndpl.rcNormalPosition.left < workarea_rect.left)
+	OffsetRect(&wndpl.rcNormalPosition,
+		workarea_rect.left - wndpl.rcNormalPosition.left, 0);
 
     if ((direction & RESIZE_VERT)
-	  && workarea_rect.top + win_ypos + win_height > workarea_rect.bottom)
-	win_ypos = workarea_rect.bottom - win_height - workarea_rect.top;
+	    && wndpl.rcNormalPosition.bottom > workarea_rect.bottom)
+	OffsetRect(&wndpl.rcNormalPosition,
+		0, workarea_rect.bottom - wndpl.rcNormalPosition.bottom);
 
-    if ((direction & RESIZE_VERT) && win_ypos < 0)
-	win_ypos = 0;
-
-    wndpl.rcNormalPosition.left = win_xpos;
-    wndpl.rcNormalPosition.right = win_xpos + win_width;
-    wndpl.rcNormalPosition.top = win_ypos;
-    wndpl.rcNormalPosition.bottom = win_ypos + win_height;
+    if ((direction & RESIZE_VERT)
+	    && wndpl.rcNormalPosition.top < workarea_rect.top)
+	OffsetRect(&wndpl.rcNormalPosition,
+		0, workarea_rect.top - wndpl.rcNormalPosition.top);
 
     /* set window position - we should use SetWindowPlacement rather than
      * SetWindowPos as the MSDN docs say the coord systems returned by
@@ -2504,13 +2548,15 @@ gui_mch_get_screen_dimensions(int *screen_w, int *screen_h)
     get_work_area(&workarea_rect);
 
     *screen_w = workarea_rect.right - workarea_rect.left
-		- GetSystemMetrics(SM_CXFRAME) * 2;
+		- (GetSystemMetrics(SM_CXFRAME) +
+                   GetSystemMetrics(SM_CXPADDEDBORDER)) * 2;
 
     /* FIXME: dirty trick: Because the gui_get_base_height() doesn't include
      * the menubar for MSwin, we subtract it from the screen height, so that
      * the window size can be made to fit on the screen. */
     *screen_h = workarea_rect.bottom - workarea_rect.top
-		- GetSystemMetrics(SM_CYFRAME) * 2
+		- (GetSystemMetrics(SM_CYFRAME) +
+                   GetSystemMetrics(SM_CXPADDEDBORDER)) * 2
 		- GetSystemMetrics(SM_CYCAPTION)
 #ifdef FEAT_MENU
 		- gui_mswin_get_menu_height(FALSE)
@@ -3000,7 +3046,8 @@ gui_mch_dialog(
     char_u	*message,
     char_u	*buttons,
     int		 dfltbutton,
-    char_u	*textfield)
+    char_u	*textfield,
+    int		ex_cmd)
 {
     WORD	*p, *pdlgtemplate, *pnumitems;
     DWORD	*dwp;
@@ -3059,7 +3106,7 @@ gui_mch_dialog(
 	return -1;
 
     /*
-     * make a copy of 'buttons' to fiddle with it.  complier grizzles because
+     * make a copy of 'buttons' to fiddle with it.  compiler grizzles because
      * vim_strsave() doesn't take a const arg (why not?), so cast away the
      * const.
      */
@@ -3132,19 +3179,23 @@ gui_mch_dialog(
 	maxDialogWidth = workarea_rect.right - workarea_rect.left - 100;
 	if (maxDialogWidth > 600)
 	    maxDialogWidth = 600;
-	maxDialogHeight = workarea_rect.bottom - workarea_rect.top - 100;
+	/* Leave some room for the taskbar. */
+	maxDialogHeight = workarea_rect.bottom - workarea_rect.top - 150;
     }
     else
     {
 	/* Use our own window for the size, unless it's very small. */
 	GetWindowRect(s_hwnd, &rect);
 	maxDialogWidth = rect.right - rect.left
-					   - GetSystemMetrics(SM_CXFRAME) * 2;
+				   - (GetSystemMetrics(SM_CXFRAME) +
+                                      GetSystemMetrics(SM_CXPADDEDBORDER)) * 2;
 	if (maxDialogWidth < DLG_MIN_MAX_WIDTH)
 	    maxDialogWidth = DLG_MIN_MAX_WIDTH;
 
 	maxDialogHeight = rect.bottom - rect.top
-					   - GetSystemMetrics(SM_CXFRAME) * 2;
+				   - (GetSystemMetrics(SM_CYFRAME) +
+                                      GetSystemMetrics(SM_CXPADDEDBORDER)) * 4
+				   - GetSystemMetrics(SM_CYCAPTION);
 	if (maxDialogHeight < DLG_MIN_MAX_HEIGHT)
 	    maxDialogHeight = DLG_MIN_MAX_HEIGHT;
     }
@@ -3175,7 +3226,7 @@ gui_mch_dialog(
 	    if (l == 1 && vim_iswhite(*pend)
 					&& textWidth > maxDialogWidth * 3 / 4)
 		last_white = pend;
-	    textWidth += GetTextWidth(hdc, pend, l);
+	    textWidth += GetTextWidthEnc(hdc, pend, l);
 	    if (textWidth >= maxDialogWidth)
 	    {
 		/* Line will wrap. */
@@ -3211,16 +3262,9 @@ gui_mch_dialog(
 
     messageWidth += 10;		/* roundoff space */
 
-    /* Restrict the size to a maximum.  Causes a scrollbar to show up. */
-    if (msgheight > maxDialogHeight)
-    {
-	msgheight = maxDialogHeight;
-	scroll_flag = WS_VSCROLL;
-	messageWidth += GetSystemMetrics(SM_CXVSCROLL);
-    }
-
     /* Add width of icon to dlgwidth, and some space */
-    dlgwidth = messageWidth + DLG_ICON_WIDTH + 3 * dlgPaddingX;
+    dlgwidth = messageWidth + DLG_ICON_WIDTH + 3 * dlgPaddingX
+					     + GetSystemMetrics(SM_CXVSCROLL);
 
     if (msgheight < DLG_ICON_HEIGHT)
 	msgheight = DLG_ICON_HEIGHT;
@@ -3241,7 +3285,7 @@ gui_mch_dialog(
 	    pend = vim_strchr(pstart, DLG_BUTTON_SEP);
 	    if (pend == NULL)
 		pend = pstart + STRLEN(pstart);	// Last button name.
-	    textWidth = GetTextWidth(hdc, pstart, (int)(pend - pstart));
+	    textWidth = GetTextWidthEnc(hdc, pstart, (int)(pend - pstart));
 	    if (textWidth < minButtonWidth)
 		textWidth = minButtonWidth;
 	    textWidth += dlgPaddingX;	    /* Padding within button */
@@ -3266,7 +3310,7 @@ gui_mch_dialog(
 	    pend = vim_strchr(pstart, DLG_BUTTON_SEP);
 	    if (pend == NULL)
 		pend = pstart + STRLEN(pstart);	// Last button name.
-	    textWidth = GetTextWidth(hdc, pstart, (int)(pend - pstart));
+	    textWidth = GetTextWidthEnc(hdc, pstart, (int)(pend - pstart));
 	    textWidth += dlgPaddingX;		/* Padding within button */
 	    textWidth += DLG_VERT_PADDING_X * 2; /* Padding around button */
 	    if (textWidth > dlgwidth)
@@ -3294,8 +3338,8 @@ gui_mch_dialog(
 
     // Dialog height.
     if (vertical)
-	dlgheight = msgheight + 2 * dlgPaddingY +
-			      DLG_VERT_PADDING_Y + 2 * fontHeight * numButtons;
+	dlgheight = msgheight + 2 * dlgPaddingY
+			   + DLG_VERT_PADDING_Y + 2 * fontHeight * numButtons;
     else
 	dlgheight = msgheight + 3 * dlgPaddingY + 2 * fontHeight;
 
@@ -3303,6 +3347,16 @@ gui_mch_dialog(
     editboxheight = fontHeight + dlgPaddingY + 4 * DLG_VERT_PADDING_Y;
     if (textfield != NULL)
 	dlgheight += editboxheight;
+
+    /* Restrict the size to a maximum.  Causes a scrollbar to show up. */
+    if (dlgheight > maxDialogHeight)
+    {
+        msgheight = msgheight - (dlgheight - maxDialogHeight);
+        dlgheight = maxDialogHeight;
+        scroll_flag = WS_VSCROLL;
+        /* Make sure scrollbar doesn't appear in the middle of the dialog */
+        messageWidth = dlgwidth - DLG_ICON_WIDTH - 3 * dlgPaddingX;
+    }
 
     add_word(PixelToDialogY(dlgheight));
 
@@ -4086,8 +4140,20 @@ initialise_toolbar(void)
 		    TOOLBAR_BUTTON_HEIGHT,
 		    sizeof(TBBUTTON)
 		    );
+    s_toolbar_wndproc = SubclassWindow(s_toolbarhwnd, toolbar_wndproc);
 
     gui_mch_show_toolbar(vim_strchr(p_go, GO_TOOLBAR) != NULL);
+}
+
+    static LRESULT CALLBACK
+toolbar_wndproc(
+    HWND hwnd,
+    UINT uMsg,
+    WPARAM wParam,
+    LPARAM lParam)
+{
+    HandleMouseHide(uMsg, lParam);
+    return CallWindowProc(s_toolbar_wndproc, hwnd, uMsg, wParam, lParam);
 }
 
     static int
@@ -4122,7 +4188,11 @@ get_toolbar_bitmap(vimmenu_T *menu)
 	 * didn't exist or wasn't specified, try the menu name
 	 */
 	if (hbitmap == NULL
-		&& (gui_find_bitmap(menu->name, fname, "bmp") == OK))
+		&& (gui_find_bitmap(
+#ifdef FEAT_MULTI_LANG
+			    menu->en_dname != NULL ? menu->en_dname :
+#endif
+					menu->dname, fname, "bmp") == OK))
 	    hbitmap = LoadImage(
 		    NULL,
 		    fname,
@@ -4162,12 +4232,24 @@ initialise_tabline(void)
 	    WS_CHILD|TCS_FOCUSNEVER|TCS_TOOLTIPS,
 	    CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 	    CW_USEDEFAULT, s_hwnd, NULL, s_hinst, NULL);
+    s_tabline_wndproc = SubclassWindow(s_tabhwnd, tabline_wndproc);
 
     gui.tabline_height = TABLINE_HEIGHT;
 
 # ifdef USE_SYSMENU_FONT
     set_tabline_font();
 # endif
+}
+
+    static LRESULT CALLBACK
+tabline_wndproc(
+    HWND hwnd,
+    UINT uMsg,
+    WPARAM wParam,
+    LPARAM lParam)
+{
+    HandleMouseHide(uMsg, lParam);
+    return CallWindowProc(s_tabline_wndproc, hwnd, uMsg, wParam, lParam);
 }
 #endif
 
@@ -4188,7 +4270,7 @@ gui_mch_set_foreground(void)
     static void
 dyn_imm_load(void)
 {
-    hLibImm = LoadLibrary("imm32.dll");
+    hLibImm = vimLoadLib("imm32.dll");
     if (hLibImm == NULL)
 	return;
 
@@ -4350,7 +4432,7 @@ gui_mch_register_sign(signfile)
     }
 
     sign.hImage = NULL;
-    ext = signfile + STRLEN(signfile) - 4; /* get extention */
+    ext = signfile + STRLEN(signfile) - 4; /* get extension */
     if (ext > signfile)
     {
 	int do_load = 1;

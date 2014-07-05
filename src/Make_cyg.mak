@@ -1,6 +1,6 @@
 #
 # Makefile for VIM on Win32, using Cygnus gcc
-# Last updated by Dan Sharp.  Last Change: 2010 Feb 24
+# Last updated by Dan Sharp.  Last Change: 2013 Dec 11
 #
 # Also read INSTALLpc.txt!
 #
@@ -21,12 +21,17 @@
 #   TCL_VER	define to version of TCL being used (83)
 #   DYNAMIC_TCL no or yes: use yes to load the TCL DLL dynamically (yes)
 # RUBY		define to path to Ruby dir to get Ruby support (not defined)
-#   RUBY_VER	define to version of Ruby being used (16)
+#   RUBY_VER		define to version of Ruby being used (16)
+#   RUBY_VER_LONG	same, but in format with dot. (1.6)
+#	    You must set RUBY_VER_LONG when changing RUBY_VER.
+#	    You must set RUBY_API_VER version to RUBY_VER_LONG.
+#	    Don't set ruby API version to RUBY_VER like 191.
 #   DYNAMIC_RUBY no or yes: use yes to load the Ruby DLL dynamically (yes)
 # MZSCHEME	define to path to MzScheme dir to get MZSCHEME support (not defined)
 #   MZSCHEME_VER      define to version of MzScheme being used (209_000)
 #   DYNAMIC_MZSCHEME  no or yes: use yes to load the MzScheme DLLs dynamically (yes)
 #   MZSCHEME_DLLS     path to MzScheme DLLs (libmzgc and libmzsch), for "static" build.
+#   MZSCHEME_USE_RACKET  define to use "racket" instead of "mzsch".
 # LUA	define to path to Lua dir to get Lua support (not defined)
 #   LUA_VER	    define to version of Lua being used (51)
 #   DYNAMIC_LUA  no or yes: use yes to load the Lua DLL dynamically (yes)
@@ -42,12 +47,12 @@
 #               (i386)
 # USEDLL	no or yes: set to yes to use the Runtime library DLL (no)
 #		For USEDLL=yes the cygwin1.dll is required to run Vim.
-#		"no" does not work with latest version of Cygwin, use
-#		Make_ming.mak instead.  Or set CC to gcc-3 and add
+#		For "no" the mingw-gcc-g++ package or the mingw64-i686-gcc-g++
+#		package is required to compile Vim.  Or set CC to gcc-3 and add
 #		-L/lib/w32api to EXTRA_LIBS.
 # POSTSCRIPT	no or yes: set to yes for PostScript printing (no)
 # FEATURES	TINY, SMALL, NORMAL, BIG or HUGE (BIG)
-# WINVER	Lowest Win32 version to support.  (0x0400)
+# WINVER	Lowest Win32 version to support.  (0x0500)
 # CSCOPE	no or yes: to include cscope interface support (yes)
 # OPTIMIZE	SPACE, SPEED, or MAXSPEED: set optimization level (MAXSPEED)
 # NETBEANS	no or yes: to include netbeans interface support (yes when GUI
@@ -84,7 +89,7 @@ ARCH = i386
 endif
 
 ifndef WINVER
-WINVER = 0x0400
+WINVER = 0x0500
 endif
 
 ifndef CSCOPE
@@ -101,17 +106,35 @@ ifndef OPTIMIZE
 OPTIMIZE = MAXSPEED
 endif
 
+
+# Link against the shared version of libstdc++ by default.  Set
+# STATIC_STDCPLUS to "yes" to link against static version instead.
+ifndef STATIC_STDCPLUS
+STATIC_STDCPLUS=no
+endif
+
 ### See feature.h for a list of optionals.
 ### Any other defines can be included here.
 
 DEFINES = -DWIN32 -DHAVE_PATHDEF -DFEAT_$(FEATURES) \
 	  -DWINVER=$(WINVER) -D_WIN32_WINNT=$(WINVER)
+ifeq ($(ARCH),x86-64)
+DEFINES+=-DMS_WIN64
+endif
 INCLUDES = -march=$(ARCH) -Iproto
 
 #>>>>> name of the compiler and linker, name of lib directory
-CROSS_COMPILE =
+ifeq (yes, $(USEDLL))
+# CROSS_COMPILE is used for the gvimext DLL.
+CROSS_COMPILE = i686-pc-mingw32-
 CC = gcc
 RC = windres
+else
+# i686-pc-mingw32-gcc, i686-w64-mingw32-gcc or gcc-3 can be used.
+CROSS_COMPILE = i686-pc-mingw32-
+CC = $(CROSS_COMPILE)gcc
+RC = $(CROSS_COMPILE)windres
+endif
 
 ##############################
 # DYNAMIC_PERL=yes and no both work
@@ -132,7 +155,7 @@ endif
 ifeq (yes, $(DYNAMIC_PERL))
 DEFINES += -DDYNAMIC_PERL -DDYNAMIC_PERL_DLL=\"perl$(PERL_VER).dll\"
 else
-EXTRA_LIBS += $(PERL)/lib/CORE/perl$(PERL_VER).lib
+EXTRA_LIBS += -L$(PERL)/lib/CORE -lperl$(PERL_VER)
 endif
 endif
 
@@ -188,43 +211,68 @@ endif
 ##############################
 ifdef RUBY
 
-ifndef RUBY_VER
-RUBY_VER=16
-endif
-
-ifndef RUBY_VER_LONG
-RUBY_VER_LONG=1.6
-endif
-
 ifndef DYNAMIC_RUBY
-DYNAMIC_RUBY = yes
+DYNAMIC_RUBY=yes
+endif
+#  Set default value
+ifndef RUBY_VER
+RUBY_VER = 16
+endif
+ifndef RUBY_VER_LONG
+RUBY_VER_LONG = 1.6
+endif
+ifndef RUBY_API_VER
+RUBY_API_VER = $(subst .,,$(RUBY_VER_LONG))
 endif
 
+ifndef RUBY_PLATFORM
 ifeq ($(RUBY_VER), 16)
-ifndef RUBY_PLATFORM
 RUBY_PLATFORM = i586-mswin32
-endif
-ifndef RUBY_INSTALL_NAME
-RUBY_INSTALL_NAME = mswin32-ruby$(RUBY_VER)
-endif
 else
-ifndef RUBY_PLATFORM
+ifneq ($(wildcard $(RUBY)/lib/ruby/$(RUBY_VER_LONG)/i386-mingw32),)
+RUBY_PLATFORM = i386-mingw32
+else
+ifneq ($(wildcard $(RUBY)/lib/ruby/$(RUBY_VER_LONG)/x64-mingw32),)
+RUBY_PLATFORM = x64-mingw32
+else
 RUBY_PLATFORM = i386-mswin32
 endif
-ifndef RUBY_INSTALL_NAME
-RUBY_INSTALL_NAME = msvcrt-ruby$(RUBY_VER)
 endif
+endif
+endif
+
+ifndef RUBY_INSTALL_NAME
+ifeq ($(RUBY_VER), 16)
+RUBY_INSTALL_NAME = mswin32-ruby$(RUBY_API_VER)
+else
+ifeq ($(ARCH),x86-64)
+RUBY_INSTALL_NAME = x64-msvcrt-ruby$(RUBY_API_VER)
+else
+RUBY_INSTALL_NAME = msvcrt-ruby$(RUBY_API_VER)
+endif
+endif
+endif
+
+ifeq (19, $(word 1,$(sort 19 $(RUBY_VER))))
+RUBY_19_OR_LATER = 1
 endif
 
 DEFINES += -DFEAT_RUBY
+ifneq ($(findstring w64-mingw32,$(CC)),)
+# A workaround for mingw-w64
+DEFINES += -DHAVE_STRUCT_TIMESPEC -DHAVE_STRUCT_TIMEZONE
+endif
 INCLUDES += -I$(RUBY)/lib/ruby/$(RUBY_VER_LONG)/$(RUBY_PLATFORM)
+ifdef RUBY_19_OR_LATER
+INCLUDES += -I$(RUBY)/include/ruby-$(RUBY_VER_LONG) -I$(RUBY)/include/ruby-$(RUBY_VER_LONG)/$(RUBY_PLATFORM)
+endif
 EXTRA_OBJS += $(OUTDIR)/if_ruby.o
 
 ifeq (yes, $(DYNAMIC_RUBY))
 DEFINES += -DDYNAMIC_RUBY -DDYNAMIC_RUBY_DLL=\"$(RUBY_INSTALL_NAME).dll\"
 DEFINES += -DDYNAMIC_RUBY_VER=$(RUBY_VER)
 else
-EXTRA_LIBS += $(RUBY)/lib/$(RUBY_INSTALL_NAME).lib
+EXTRA_LIBS += $(RUBY)/lib/$(RUBY_INSTALL_NAME)
 endif
 endif
 
@@ -254,16 +302,22 @@ ifndef MZSCHEME_GENERATE_BASE
 MZSCHEME_GENERATE_BASE=no
 endif
 
+ifndef MZSCHEME_USE_RACKET
+MZSCHEME_MAIN_LIB=mzsch
+else
+MZSCHEME_MAIN_LIB=racket
+endif
+
 ifeq (yes, $(DYNAMIC_MZSCHEME))
-DEFINES += -DDYNAMIC_MZSCHEME -DDYNAMIC_MZSCH_DLL=\"libmzsch$(MZSCHEME_VER).dll\" -DDYNAMIC_MZGC_DLL=\"libmzgc$(MZSCHEME_VER).dll\"
+DEFINES += -DDYNAMIC_MZSCHEME -DDYNAMIC_MZSCH_DLL=\"lib$(MZSCHEME_MAIN_LIB)$(MZSCHEME_VER).dll\" -DDYNAMIC_MZGC_DLL=\"libmzgc$(MZSCHEME_VER).dll\"
 else
 ifndef MZSCHEME_DLLS
 MZSCHEME_DLLS = $(MZSCHEME)
 endif
 ifeq (yes,$(MZSCHEME_PRECISE_GC))
-MZSCHEME_LIB=-lmzsch$(MZSCHEME_VER)
+MZSCHEME_LIB=-l$(MZSCHEME_MAIN_LIB)$(MZSCHEME_VER)
 else
-MZSCHEME_LIB = -lmzsch$(MZSCHEME_VER) -lmzgc$(MZSCHEME_VER)
+MZSCHEME_LIB = -l$(MZSCHEME_MAIN_LIB)$(MZSCHEME_VER) -lmzgc$(MZSCHEME_VER)
 endif
 EXTRA_LIBS += -L$(MZSCHEME_DLLS) -L$(MZSCHEME_DLLS)/lib $(MZSCHEME_LIB)
 endif
@@ -385,8 +439,6 @@ endif
 ##############################
 ifeq (yes, $(USEDLL))
 DEFINES += -D_MAX_PATH=256 -D__CYGWIN__
-else
-INCLUDES += -mno-cygwin
 endif
 
 ##############################
@@ -442,7 +494,12 @@ endif
 ifeq (yes, $(OLE))
 DEFINES += -DFEAT_OLE
 EXTRA_OBJS += $(OUTDIR)/if_ole.o
-EXTRA_LIBS += -loleaut32 -lstdc++
+EXTRA_LIBS += -loleaut32
+ifeq (yes, $(STATIC_STDCPLUS))
+EXTRA_LIBS += -Wl,-Bstatic -lstdc++ -Wl,-Bdynamic
+else
+EXTRA_LIBS += -lstdc++
+endif
 endif
 
 ##############################
@@ -499,6 +556,7 @@ OBJ = \
 	$(OUTDIR)/option.o \
 	$(OUTDIR)/os_win32.o \
 	$(OUTDIR)/os_mswin.o \
+	$(OUTDIR)/winclip.o \
 	$(OUTDIR)/pathdef.o \
 	$(OUTDIR)/popupmnu.o \
 	$(OUTDIR)/quickfix.o \
@@ -529,7 +587,7 @@ xxd/xxd.exe: xxd/xxd.c
 	$(MAKE) -C xxd -f Make_cyg.mak CC=$(CC) USEDLL=$(USEDLL)
 
 GvimExt/gvimext.dll: GvimExt/gvimext.cpp GvimExt/gvimext.rc GvimExt/gvimext.h
-	$(MAKE) -C GvimExt -f Make_ming.mak CROSS_COMPILE=$(CROSS_COMPILE)
+	$(MAKE) -C GvimExt -f Make_cyg.mak CROSS_COMPILE=$(CROSS_COMPILE)
 
 vimrun.exe: vimrun.c
 	$(CC) $(CFLAGS) -o vimrun.exe vimrun.c  $(LIBS)
@@ -558,7 +616,7 @@ ifdef MZSCHEME
 endif
 	-$(DEL) pathdef.c
 	$(MAKE) -C xxd -f Make_cyg.mak clean
-	$(MAKE) -C GvimExt -f Make_ming.mak clean
+	$(MAKE) -C GvimExt -f Make_cyg.mak clean
 
 distclean: clean
 	-$(DEL) obj$(DIRSLASH)*.o
@@ -582,16 +640,19 @@ $(OUTDIR)/ex_docmd.o:	ex_docmd.c $(INCL) ex_cmds.h
 $(OUTDIR)/ex_eval.o:	ex_eval.c $(INCL) ex_cmds.h
 	$(CC) -c $(CFLAGS) ex_eval.c -o $(OUTDIR)/ex_eval.o
 
+$(OUTDIR)/gui_w32.o:	gui_w32.c gui_w48.c $(INCL)
+	$(CC) -c $(CFLAGS) gui_w32.c -o $(OUTDIR)/gui_w32.o
+
 $(OUTDIR)/if_cscope.o:	if_cscope.c $(INCL) if_cscope.h
 	$(CC) -c $(CFLAGS) if_cscope.c -o $(OUTDIR)/if_cscope.o
 
 $(OUTDIR)/if_ole.o:	if_ole.cpp $(INCL)
 	$(CC) -c $(CFLAGS) if_ole.cpp -o $(OUTDIR)/if_ole.o
 
-$(OUTDIR)/if_python.o : if_python.c $(INCL)
+$(OUTDIR)/if_python.o : if_python.c if_py_both.h $(INCL)
 	$(CC) -c $(CFLAGS) -I$(PYTHON)/include $< -o $@
 
-$(OUTDIR)/if_python3.o : if_python3.c $(INCL)
+$(OUTDIR)/if_python3.o : if_python3.c if_py_both.h $(INCL)
 	$(CC) -c $(CFLAGS) -I$(PYTHON3)/include $< -o $@
 
 if_perl.c: if_perl.xs typemap
@@ -611,6 +672,9 @@ endif
 
 $(OUTDIR)/netbeans.o:	netbeans.c $(INCL) $(NBDEBUG_DEP)
 	$(CC) -c $(CFLAGS) netbeans.c -o $(OUTDIR)/netbeans.o
+
+$(OUTDIR)/regexp.o:		regexp.c regexp_nfa.c $(INCL)
+	$(CC) -c $(CFLAGS) regexp.c -o $(OUTDIR)/regexp.o
 
 $(OUTDIR)/if_mzsch.o:	if_mzsch.c $(INCL) if_mzsch.h $(MZ_EXTRA_DEP)
 	$(CC) -c $(CFLAGS) if_mzsch.c -o $(OUTDIR)/if_mzsch.o

@@ -17,20 +17,21 @@ VIMNAME		= vim
 EXNAME		= ex
 VIEWNAME	= view
 
-CC		= arm-linux-androideabi-gcc
+CC		= gcc
 DEFS		= -DHAVE_CONFIG_H
-CFLAGS		= -nostdlib -D_FORTIFY_SOURCE=1
-CPPFLAGS	= -I/opt/android/ev/jb/prebuilts/ndk/current/platforms/android-9/arch-arm/usr/include/
+CFLAGS		= -g -O2 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=1
+CPPFLAGS	= 
 srcdir		= .
 
-LDFLAGS		= -Wl,-rpath-link=/opt/android/ev/jb/prebuilts/ndk/current/platforms/android-9/arch-arm/usr/lib/ -L/opt/android/ev/jb/prebuilts/ndk/current/platforms/android-9/arch-arm/usr/lib/
-LIBS		= -lm -lc -lncurses -ldl
-TAGPRG		= ctags
+LDFLAGS		=  -L/usr/local/lib -Wl,--as-needed
+LIBS		= -lm -lncurses -lnsl 
+TAGPRG		= ctags -I INIT+ --fields=+S
 
-CPP		= arm-linux-androideabi-gcc -E
+CPP		= gcc -E
 CPP_MM		= M
 DEPEND_CFLAGS_FILTER = | sed 's+-I */+-isystem /+g'
-X_CFLAGS	= 
+LINK_AS_NEEDED	= yes
+X_CFLAGS	=  
 X_LIBS_DIR	=  
 X_PRE_LIBS	= 
 X_EXTRA_LIBS	= 
@@ -85,8 +86,8 @@ HANGULIN_OBJ	=
 WORKSHOP_SRC	= 
 WORKSHOP_OBJ	= 
 
-NETBEANS_SRC	= 
-NETBEANS_OBJ	= 
+NETBEANS_SRC	= netbeans.c
+NETBEANS_OBJ	= objects/netbeans.o
 
 RUBY		= 
 RUBY_SRC	= 
@@ -118,7 +119,7 @@ QUOTESED        = sed -e 's/[\\"]/\\&/g' -e 's/\\"/"/' -e 's/\\";$$/";/'
 NL		= "\\012"
 
 ### Top directory for everything
-prefix		= /system
+prefix		= /usr/local
 
 ### Top directory for the binary
 exec_prefix	= ${prefix}
@@ -130,7 +131,7 @@ BINDIR		= ${exec_prefix}/bin
 datarootdir	= ${prefix}/share
 
 ### Prefix for location of data files
-DATADIR		= /system/usr/share
+DATADIR		= ${datarootdir}
 
 ### Prefix for location of man pages
 MANDIR		= ${datarootdir}/man
@@ -161,7 +162,9 @@ OS_EXTRA_SRC	=
 OS_EXTRA_OBJ	= 
 
 ### If the *.po files are to be translated to *.mo files.
-MAKEMO		= 
+MAKEMO		= yes
+
+MSGFMT		= msgfmt
 
 # Make sure that "make first" will run "make all" once configure has done its
 # work.  This is needed when using the Makefile in the top directory.

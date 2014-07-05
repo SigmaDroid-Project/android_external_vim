@@ -123,7 +123,7 @@
 #define DCS		0x90	/* Device Control String */
 #define STERM		0x9c	/* String Terminator */
 
-#define POUND		'£'
+#define POUND		0xB1
 
 #define CTRL_F_STR	"\056"
 #define CTRL_H_STR	"\026"
@@ -183,11 +183,6 @@ extern char MetaCharTable[];
 # define PATHSEP	psepc
 # define PATHSEPSTR	pseps
 #else
-# ifdef RISCOS
-#  define PATHSEP	'.'
-#  define PATHSEPSTR	"."
-# else
-#  define PATHSEP	'/'
-#  define PATHSEPSTR	"/"
-# endif
+# define PATHSEP	'/'
+# define PATHSEPSTR	"/"
 #endif

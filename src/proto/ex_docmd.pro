@@ -1,7 +1,7 @@
 /* ex_docmd.c */
 void do_exmode __ARGS((int improved));
 int do_cmdline_cmd __ARGS((char_u *cmd));
-int do_cmdline __ARGS((char_u *cmdline, char_u *(*getline)(int, void *, int), void *cookie, int flags));
+int do_cmdline __ARGS((char_u *cmdline, char_u *(*fgetline)(int, void *, int), void *cookie, int flags));
 int getline_equal __ARGS((char_u *(*fgetline)(int, void *, int), void *cookie, char_u *(*func)(int, void *, int)));
 void *getline_cookie __ARGS((char_u *(*fgetline)(int, void *, int), void *cookie));
 int checkforcmd __ARGS((char_u **pp, char *cmd, int len));
@@ -40,6 +40,7 @@ void ex_splitview __ARGS((exarg_T *eap));
 void tabpage_new __ARGS((void));
 void do_exedit __ARGS((exarg_T *eap, win_T *old_curwin));
 void free_cd_dir __ARGS((void));
+void post_chdir __ARGS((int local));
 void ex_cd __ARGS((exarg_T *eap));
 void do_sleep __ARGS((long msec));
 int vim_mkdir_emsg __ARGS((char_u *name, int prot));
@@ -53,4 +54,5 @@ int put_eol __ARGS((FILE *fd));
 int put_line __ARGS((FILE *fd, char *s));
 void dialog_msg __ARGS((char_u *buff, char *format, char_u *fname));
 char_u *get_behave_arg __ARGS((expand_T *xp, int idx));
+void ex_may_print __ARGS((exarg_T *eap));
 /* vim: set ft=c : */

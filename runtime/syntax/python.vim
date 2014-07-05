@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language:	Python
 " Maintainer:	Neil Schemenauer <nas@python.ca>
-" Last Change:	2009-10-13
+" Last Change:	2013 Feb 26
 " Credits:	Zvezdan Petkovic <zpetkovic@acm.org>
 "		Neil Schemenauer <nas@python.ca>
 "		Dmitry Vasiliev
@@ -44,6 +44,11 @@ if version < 600
 elseif exists("b:current_syntax")
   finish
 endif
+
+" We need nocompatible mode in order to continue lines with backslashes.
+" Original setting will be restored.
+let s:cpo_save = &cpo
+set cpo&vim
 
 " Keep Python keywords in alphabetical order inside groups for easy
 " comparison with the table in the 'Python Language Reference'
@@ -231,7 +236,7 @@ endif
 " Notice that the end of a string, either ''', or """, will end the contained
 " doctest too.  Thus, we do *not* need to have it as an end pattern.
 if !exists("python_no_doctest_highlight")
-  if !exists("python_no_doctest_code_higlight")
+  if !exists("python_no_doctest_code_highlight")
     syn region pythonDoctest
 	  \ start="^\s*>>>\s" end="^\s*$"
 	  \ contained contains=ALLBUT,pythonDoctest,@Spell
@@ -291,5 +296,8 @@ if version >= 508 || !exists("did_python_syn_inits")
 endif
 
 let b:current_syntax = "python"
+
+let &cpo = s:cpo_save
+unlet s:cpo_save
 
 " vim:set sw=2 sts=2 ts=8 noet:

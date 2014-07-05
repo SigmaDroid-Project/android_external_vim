@@ -13,6 +13,8 @@ VIMPROG = /vim
 # test25	uses symbolic link
 # test27	can't edit file with "*"
 # test52	only for Win32
+# test85	no Lua interface
+# test86, 87	no Python interface
 
 SCRIPTS = test1.out test3.out test4.out test5.out test6.out \
 		test7.out test8.out test9.out \
@@ -27,7 +29,18 @@ SCRIPTS = test1.out test3.out test4.out test5.out test6.out \
 		test56.out test57.out test58.out test59.out test60.out \
 		test61.out test62.out test63.out test64.out test65.out \
 		test66.out test67.out test68.out test69.out test70.out \
-		test71.out test72.out test73.out
+		test71.out test72.out test73.out test74.out test75.out \
+		test76.out test77.out test78.out test79.out test80.out \
+		test81.out test82.out test83.out test84.out test88.out \
+		test89.out test90.out test91.out test92.out test93.out \
+		test94.out test95.out test96.out test97.out test98.out \
+		test99.out test100.out test101.out test102.out test103.out \
+		test104.out test105.out test106.out test107.out \
+		test_autoformat_join.out \
+		test_breakindent.out \
+		test_listlbr.out \
+		test_eval.out \
+		test_options.out
 
 .SUFFIXES: .in .out
 
@@ -120,3 +133,39 @@ test70.out: test70.in
 test71.out: test71.in
 test72.out: test72.in
 test73.out: test73.in
+test74.out: test74.in
+test75.out: test75.in
+test76.out: test76.in
+test77.out: test77.in
+test78.out: test78.in
+test79.out: test79.in
+test80.out: test80.in
+test81.out: test81.in
+test82.out: test82.in
+test83.out: test83.in
+test84.out: test84.in
+test88.out: test88.in
+test89.out: test89.in
+test90.out: test90.in
+test91.out: test91.in
+test92.out: test92.in
+test93.out: test93.in
+test94.out: test94.in
+test95.out: test95.in
+test96.out: test96.in
+test97.out: test97.in
+test98.out: test98.in
+test99.out: test99.in
+test100.out: test100.in
+test101.out: test101.in
+test102.out: test102.in
+test103.out: test103.in
+test104.out: test104.in
+test105.out: test105.in
+test106.out: test106.in
+test107.out: test107.in
+test_autoformat_join.out: test_autoformat_join.in
+test_breakindent.out: test_breakindent.in
+test_listlbr.out: test_listlbr.in
+test_eval.out: test_eval.in
+test_options.out: test_options.in
