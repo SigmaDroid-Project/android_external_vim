@@ -10,7 +10,7 @@ LOCAL_MODULE := vimrc
 LOCAL_MODULE_TAGS := eng
 LOCAL_MODULE_CLASS := ETC
 
-LOCAL_SRC_FILES := runtime/vimrc_example.vim
+LOCAL_SRC_FILES := vimrc.android
 
 include $(BUILD_PREBUILT)
 

@@ -434,7 +434,7 @@
 /* #undef RUNTIME_GLOBAL */
 
 /* Define name of who modified a released Vim */
-#define MODIFIED_BY "tpruvot@github"
+//#define MODIFIED_BY "tpruvot@github"
 
 /* Define if you want XSMP interaction as well as vanilla swapfile safety */
 #define USE_XSMP_INTERACT 1
