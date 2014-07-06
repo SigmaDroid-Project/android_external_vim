@@ -1,4 +1,4 @@
-LOCAL_PATH:= $(call my-dir)
+LOCAL_PATH := $(call my-dir)
 
 # ========================================================
 # vim
@@ -82,3 +82,98 @@ LOCAL_MODULE := vim
 LOCAL_MODULE_TAGS := eng
 LOCAL_MODULE_PATH := $(TARGET_OUT_OPTIONAL_EXECUTABLES)
 include $(BUILD_EXECUTABLE)
+
+#========================================================
+# vim runtime files
+#========================================================
+vim_runtime_path := $(LOCAL_PATH)/../runtime
+
+vim_runtime_files := \
+	scripts.vim \
+	indent.vim \
+	indoff.vim \
+	filetype.vim \
+	ftoff.vim 
+
+vim_colors_files := \
+	default.vim \
+	desert.vim
+
+vim_doc_files := \
+	help.txt \
+	version7.txt \
+	tags \
+	term.txt
+
+vim_syntax_files := \
+	awk.vim \
+	config.vim \
+	conf.vim \
+	cpp.vim \
+	c.vim \
+	css.vim \
+	diff.vim \
+	doxygen.vim \
+	html.vim vb.vim \
+	xml.vim dtd.vim \
+	context.vim \
+	gitcommit.vim \
+	javascript.vim \
+	java.vim \
+	manual.vim \
+	sh.vim \
+	syncolor.vim \
+	synload.vim \
+	syntax.vim \
+	vim.vim
+
+VIM_SHARED := $(TARGET_OUT)/usr/share/$(LOCAL_MODULE)
+
+VIM_RUNTIME_R := \
+	$(addprefix $(vim_runtime_path)/,$(vim_runtime_files))
+$(VIM_RUNTIME_R): VIM_BINARY := $(LOCAL_MODULE)
+$(VIM_RUNTIME_R): $(LOCAL_INSTALLED_MODULE)
+	@echo "Install: $@ -> $(VIM_SHARED)/"
+	@mkdir -p $(VIM_SHARED)
+	$(hide) cp $@ $(VIM_SHARED)/
+
+ALL_DEFAULT_INSTALLED_MODULES += $(VIM_RUNTIME_R)
+
+
+VIM_RUNTIME_C := \
+	$(addprefix $(vim_runtime_path)/colors/,$(vim_colors_files))
+$(VIM_RUNTIME_C): VIM_BINARY := $(LOCAL_MODULE)
+$(VIM_RUNTIME_C): $(LOCAL_INSTALLED_MODULE)
+	@echo "Install: $@ -> $(VIM_SHARED)/colors/"
+	@mkdir -p $(VIM_SHARED)/colors
+	$(hide) cp $@ $(VIM_SHARED)/colors/
+
+ALL_DEFAULT_INSTALLED_MODULES += $(VIM_RUNTIME_C)
+
+
+VIM_RUNTIME_D := \
+	$(addprefix $(vim_runtime_path)/doc/,$(vim_doc_files))
+$(VIM_RUNTIME_D): VIM_BINARY := $(LOCAL_MODULE)
+$(VIM_RUNTIME_D): $(LOCAL_INSTALLED_MODULE)
+	@echo "Install: $@ -> $(VIM_SHARED)/doc/"
+	@mkdir -p $(VIM_SHARED)/doc
+	$(hide) cp $@ $(VIM_SHARED)/doc/
+
+ALL_DEFAULT_INSTALLED_MODULES += $(VIM_RUNTIME_D)
+
+
+VIM_RUNTIME_S := \
+	$(addprefix $(vim_runtime_path)/syntax/,$(vim_syntax_files))
+$(VIM_RUNTIME_S): VIM_BINARY := $(LOCAL_MODULE)
+$(VIM_RUNTIME_S): $(LOCAL_INSTALLED_MODULE)
+	@echo "Install: $@ -> $(VIM_SHARED)/syntax/"
+	@mkdir -p $(VIM_SHARED)/syntax
+	$(hide) cp $@ $(VIM_SHARED)/syntax/
+
+ALL_DEFAULT_INSTALLED_MODULES += $(VIM_RUNTIME_S)
+
+
+ALL_MODULES.$(LOCAL_MODULE).INSTALLED := \
+	$(ALL_MODULES.$(LOCAL_MODULE).INSTALLED) \
+	$(VIM_RUNTIME_S) $(VIM_RUNTIME_C) $(VIM_RUNTIME_D) $(VIM_RUNTIME_R)
+
