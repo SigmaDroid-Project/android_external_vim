@@ -93,17 +93,16 @@ vim_runtime_files := \
 	indent.vim \
 	indoff.vim \
 	filetype.vim \
-	ftoff.vim 
+	ftoff.vim
 
 vim_colors_files := \
 	default.vim \
 	desert.vim
 
 vim_doc_files := \
-	help.txt \
-	version7.txt \
-	tags \
-	term.txt
+	help.txt intro.txt tags \
+	motion.txt editing.txt scroll.txt \
+	options.txt term.txt
 
 vim_syntax_files := \
 	awk.vim \
@@ -118,6 +117,7 @@ vim_syntax_files := \
 	xml.vim dtd.vim \
 	context.vim \
 	gitcommit.vim \
+	help.vim \
 	javascript.vim \
 	java.vim \
 	manual.vim \
@@ -126,6 +126,12 @@ vim_syntax_files := \
 	synload.vim \
 	syntax.vim \
 	vim.vim
+
+vim_plugin_files := \
+	matchparen.vim \
+
+vim_autoload_files := \
+	spacehi.vim \
 
 VIM_SHARED := $(TARGET_OUT)/usr/share/$(LOCAL_MODULE)
 
@@ -173,7 +179,31 @@ $(VIM_RUNTIME_S): $(LOCAL_INSTALLED_MODULE)
 ALL_DEFAULT_INSTALLED_MODULES += $(VIM_RUNTIME_S)
 
 
+VIM_RUNTIME_P := \
+	$(addprefix $(vim_runtime_path)/plugin/,$(vim_plugin_files))
+$(VIM_RUNTIME_P): VIM_BINARY := $(LOCAL_MODULE)
+$(VIM_RUNTIME_P): $(LOCAL_INSTALLED_MODULE)
+	@echo "Install: $@ -> $(VIM_SHARED)/plugin/"
+	@mkdir -p $(VIM_SHARED)/plugin
+	$(hide) cp $@ $(VIM_SHARED)/plugin/
+
+ALL_DEFAULT_INSTALLED_MODULES += $(VIM_RUNTIME_P)
+
+
+VIM_RUNTIME_A := \
+	$(addprefix $(vim_runtime_path)/autoload/,$(vim_autoload_files))
+$(VIM_RUNTIME_A): VIM_BINARY := $(LOCAL_MODULE)
+$(VIM_RUNTIME_A): $(LOCAL_INSTALLED_MODULE)
+	@echo "Install: $@ -> $(VIM_SHARED)/autoload/"
+	@mkdir -p $(VIM_SHARED)/autoload
+	$(hide) cp $@ $(VIM_SHARED)/autoload/
+
+ALL_DEFAULT_INSTALLED_MODULES += $(VIM_RUNTIME_A)
+
+
 ALL_MODULES.$(LOCAL_MODULE).INSTALLED := \
 	$(ALL_MODULES.$(LOCAL_MODULE).INSTALLED) \
-	$(VIM_RUNTIME_S) $(VIM_RUNTIME_C) $(VIM_RUNTIME_D) $(VIM_RUNTIME_R)
+	$(VIM_RUNTIME_R) $(VIM_RUNTIME_C) $(VIM_RUNTIME_D) \
+	$(VIM_RUNTIME_S) $(VIM_RUNTIME_P) $(VIM_RUNTIME_A)
+
 
