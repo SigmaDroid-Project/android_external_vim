@@ -110,11 +110,13 @@ extern int	sigsetjmp __ARGS((sigjmp_buf, int));
 #ifndef __TANDEM
 #endif
 
+#ifndef HAVE_TERMCAP_H
 extern int  tgetent __ARGS((char *, char *));
 extern int  tgetnum __ARGS((char *));
 extern int  tgetflag __ARGS((char *));
 extern char *tgoto __ARGS((char *, int, int));
 extern int  tputs __ARGS((char *, int, int (*)(int)));
+#endif
 
 #ifdef HAVE_TERMIOS_H
 #endif

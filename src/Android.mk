@@ -61,6 +61,7 @@ LOCAL_SRC_FILES := \
 
 LOCAL_C_INCLUDES += \
 	external/libselinux/include \
+	external/libncurses/include \
 	$(LOCAL_PATH) \
 	$(LOCAL_PATH)/proto \
 	$(LOCAL_PATH)/auto
@@ -75,7 +76,7 @@ LOCAL_CFLAGS += \
 	-DHAVE_CONFIG_H \
 	-DSYS_VIMRC_FILE=\"/system/etc/vimrc\"
 
-LOCAL_LDLIBS := -ldl
+LOCAL_LDLIBS := -ldl -lncurses
 
 LOCAL_MODULE := vim
 LOCAL_MODULE_TAGS := eng

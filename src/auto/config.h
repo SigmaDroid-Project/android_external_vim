@@ -14,16 +14,16 @@
 #define TERMINFO 1
 
 /* Define when termcap.h contains ospeed */
-/* #undef HAVE_OSPEED */
+#define HAVE_OSPEED 1
 
 /* Define when ospeed can be extern */
-/* #undef OSPEED_EXTERN */
+#define OSPEED_EXTERN 1
 
 /* Define when termcap.h contains UP, BC and PC */
-/* #undef HAVE_UP_BC_PC */
+#define HAVE_UP_BC_PC 1
 
 /* Define when UP, BC and PC can be extern */
-/* #undef UP_BC_PC_EXTERN */
+#define UP_BC_PC_EXTERN 1
 
 /* Define when termcap.h defines outfuntype */
 /* #undef HAVE_OUTFUNTYPE */
@@ -41,13 +41,13 @@
 #define VIM_SIZEOF_INT 4
 
 /* Defined to the size of a long */
-#define VIM_SIZEOF_LONG 8
+#define VIM_SIZEOF_LONG 4
 
 /* Defined to the size of off_t */
-#define SIZEOF_OFF_T 8
+#define SIZEOF_OFF_T 4
 
 /* Defined to the size of time_t */
-#define SIZEOF_TIME_T 8
+#define SIZEOF_TIME_T 4
 
 /* Define when wchar_t is only 2 bytes. */
 /* #undef SMALL_WCHAR_T */
@@ -58,7 +58,7 @@
  */
 /* #undef USEBCOPY */
 #define USEMEMMOVE 1
-/* #undef USEMEMCPY */
+#define USEMEMCPY 1
 
 /* Define when "man -s 2" is to be used */
 /* #undef USEMAN_S */
@@ -256,13 +256,13 @@
 #define HAVE_SYS_SELECT_H 1
 #define HAVE_SYS_STATFS_H 1
 /* #undef HAVE_SYS_STREAM_H */
-#define HAVE_SYS_SYSCTL_H 1
+/* #undef HAVE_SYS_SYSCTL_H */
 #define HAVE_SYS_SYSINFO_H 1
 /* #undef HAVE_SYS_SYSTEMINFO_H */
 #define HAVE_SYS_TIME_H 1
 #define HAVE_SYS_TYPES_H 1
 #define HAVE_SYS_UTSNAME_H 1
-/* #undef HAVE_TERMCAP_H */
+#define HAVE_TERMCAP_H 1
 #define HAVE_TERMIOS_H 1
 #define HAVE_TERMIO_H 1
 #define HAVE_WCHAR_H 1
@@ -434,7 +434,7 @@
 /* #undef RUNTIME_GLOBAL */
 
 /* Define name of who modified a released Vim */
-/* #undef MODIFIED_BY */
+#define MODIFIED_BY "tpruvot@github"
 
 /* Define if you want XSMP interaction as well as vanilla swapfile safety */
 #define USE_XSMP_INTERACT 1
