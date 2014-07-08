@@ -5,6 +5,13 @@ LOCAL_PATH := $(call my-dir)
 # ========================================================
 include $(CLEAR_VARS)
 
+# vim variants: TINY SMALL NORMAL BIG HUGE
+#
+# NORMAL, BIG and HUGE are almost the same (1.1M)
+# TINY and SMALL are similar to busybox vi (450K)
+#
+vim_variant := BIG
+
 LOCAL_SRC_FILES := \
 	blowfish.c \
 	buffer.c \
@@ -73,19 +80,18 @@ LOCAL_SHARED_LIBRARIES += \
 	libdl
 
 LOCAL_CFLAGS += \
+	-DFEAT_$(vim_variant)=1 \
 	-DHAVE_CONFIG_H \
 	-DSYS_VIMRC_FILE=\"/system/etc/vimrc\"
-
-LOCAL_LDLIBS := -ldl -lncurses
 
 LOCAL_MODULE := vim
 LOCAL_MODULE_TAGS := eng
 LOCAL_MODULE_PATH := $(TARGET_OUT_OPTIONAL_EXECUTABLES)
 include $(BUILD_EXECUTABLE)
 
-#========================================================
+# ========================================================
 # vim runtime files
-#========================================================
+# ========================================================
 vim_runtime_path := $(LOCAL_PATH)/../runtime
 
 vim_runtime_files := \
@@ -130,8 +136,10 @@ vim_syntax_files := \
 vim_plugin_files := \
 	matchparen.vim \
 
-vim_autoload_files := \
-	spacehi.vim \
+vim_autoload_files :=
+ifneq ($(vim_variant),SMALL)
+  vim_autoload_files += spacehi.vim
+endif
 
 VIM_SHARED := $(TARGET_OUT)/usr/share/$(LOCAL_MODULE)
 

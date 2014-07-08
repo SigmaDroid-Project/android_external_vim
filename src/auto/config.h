@@ -305,19 +305,19 @@
 /* #undef NO_STRINGS_WITH_STRING_H */
 
 /* Define if you want tiny features. */
-/* #undef FEAT_TINY */
+//#define FEAT_TINY 1 /* 435K on arm */
 
 /* Define if you want small features. */
-/* #undef FEAT_SMALL */
+//#define FEAT_SMALL 1 /* 450K on arm */
 
 /* Define if you want normal features. */
-#define FEAT_NORMAL 1
+//#define FEAT_NORMAL 1 /* 1.1M on arm */
 
 /* Define if you want big features. */
-/* #undef FEAT_BIG */
+//#define FEAT_BIG 1  /* 1.2M on arm */
 
 /* Define if you want huge features. */
-/* #undef FEAT_HUGE */
+//#define FEAT_HUGE 1 /* 1.2M on arm */
 
 /* Define if you want to include the Lua interpreter. */
 /* #undef FEAT_LUA */
