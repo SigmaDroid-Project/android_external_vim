@@ -111,6 +111,7 @@ vim_doc_files := \
 	options.txt term.txt
 
 vim_syntax_files := \
+	logcat.vim \
 	awk.vim \
 	config.vim \
 	conf.vim \
