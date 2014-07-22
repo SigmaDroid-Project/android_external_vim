@@ -4592,7 +4592,10 @@ ins_compl_delete()
      */
     i = compl_col + (compl_cont_status & CONT_ADDING ? compl_length : 0);
     backspace_until_column(i);
+
+    /* Not sure what is still valid, better redraw everything. */
     changed_cline_bef_curs();
+    redraw_curbuf_later(NOT_VALID);
 }
 
 /* Insert the new text being completed. */
