@@ -387,6 +387,10 @@ else
   elseif s:line1 =~# '^\(commit\|tree\|object\) \x\{40,\}\>\|^tag \S\+$'
     set ft=git
 
+  " Logcat
+  elseif s:line1 == '--------- beginning of '
+    set ft=logcat
+
    " Gprof (gnu profiler)
    elseif s:line1 == 'Flat profile:'
      \ && s:line2 == ''
