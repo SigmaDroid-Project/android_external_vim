@@ -184,7 +184,7 @@ vim_runtime_files := \
   $(addprefix autoload/, $(vim_autoload_files)) \
 
 $(vim_runtime_files): $(LOCAL_BUILT_MODULE)
-	@echo -e ${CL_CYN}"Install: $(VIM_SHARED)/$@"${CL_RST}
+	@echo "Install: $(VIM_SHARED)/$@"
 	@mkdir -p $(dir $(VIM_SHARED)/$@)
 	$(hide) cp $(vim_runtime_path)/$@ $(VIM_SHARED)/$@
 
@@ -197,7 +197,7 @@ ALL_MODULES.$(LOCAL_MODULE).INSTALLED := \
 ifneq ($(filter B wB,$(MAKEFLAGS)),)
 # Allow to push runtime files with 'mmp -B'
 vim: $(vim_runtime_files)
-	@echo -e ${CL_YLW}"Forced install of runtime files..."${CL_RST}
+	@echo "Forced install of runtime files..."
 endif
 
 endif
