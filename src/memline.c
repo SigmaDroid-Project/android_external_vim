@@ -3359,7 +3359,7 @@ ml_append_flags(
 }
 
 
-#if defined(FEAT_SPELL) || defined(FEAT_QUICKFIX) || defined(PROTO)
+#if defined(FEAT_SPELL) || defined(FEAT_QUICKFIX) || defined(PROTO) || defined(FEAT_TEXT_PROP)
 /*
  * Like ml_append() but for an arbitrary buffer.  The buffer must already have
  * a memline.
