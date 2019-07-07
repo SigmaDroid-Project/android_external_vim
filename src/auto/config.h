@@ -168,19 +168,20 @@
 #define HAVE_GETCWD 1
 #define HAVE_GETPGID 1
 /* #undef HAVE_GETPSEUDOTTY */
-#define HAVE_GETPWENT 1
+/* #undef HAVE_GETPWENT */
 #define HAVE_GETPWNAM 1
 #define HAVE_GETPWUID 1
 #define HAVE_GETRLIMIT 1
 #define HAVE_GETTIMEOFDAY 1
-/* #undef HAVE_GETWD */
-#define HAVE_ICONV 1
+#define HAVE_GETWD 1
+/* #undef HAVE_ICONV */
 #define HAVE_LOCALTIME_R 1
 #define HAVE_LSTAT 1
+#define HAVE_MEMCMP 1
 #define HAVE_MEMSET 1
 #define HAVE_MKDTEMP 1
 #define HAVE_NANOSLEEP 1
-#define HAVE_NL_LANGINFO_CODESET 1
+/* #undef HAVE_NL_LANGINFO_CODESET */
 #define HAVE_OPENDIR 1
 #define HAVE_POSIX_OPENPT 1
 #define HAVE_PUTENV 1
@@ -208,7 +209,7 @@
 /* #undef HAVE_STRNICMP */
 #define HAVE_STRPBRK 1
 #define HAVE_STRTOL 1
-#define HAVE_CANBERRA 1
+/* #undef HAVE_CANBERRA */
 #define HAVE_ST_BLKSIZE 1
 #define HAVE_SYSCONF 1
 /* #undef HAVE_SYSCTL */
@@ -239,10 +240,10 @@
 /* #undef HAVE_FRAME_H */
 #define HAVE_ICONV_H 1
 #define HAVE_INTTYPES_H 1
-#define HAVE_LANGINFO_H 1
+/* #undef HAVE_LANGINFO_H */
 /* #undef HAVE_LIBC_H */
 #define HAVE_LIBGEN_H 1
-#define HAVE_LIBINTL_H 1
+/* #undef HAVE_LIBINTL_H */
 #define HAVE_LOCALE_H 1
 #define HAVE_MATH_H 1
 /* #undef HAVE_NDIR_H */
@@ -381,7 +382,7 @@
 /* #undef HAVE_AIX_ACL */
 
 /* Define if pango_shape_full() is available. */
-#define HAVE_PANGO_SHAPE_FULL 1
+/* #undef HAVE_PANGO_SHAPE_FULL */
 
 /* Define if you want to add support of GPM (Linux console mouse daemon) */
 /* #undef HAVE_GPM */
