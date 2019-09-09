@@ -236,15 +236,16 @@ vim_runtime_files := \
   $(addprefix plugin/, $(vim_plugin_files)) \
   $(addprefix autoload/, $(vim_autoload_files)) \
 
-$(vim_runtime_files): $(LOCAL_BUILT_MODULE)
-	@echo "Install: $(VIM_SHARED)/$@"
-	@mkdir -p $(dir $(VIM_SHARED)/$@)
-	$(hide) cp $(vim_runtime_path)/$@ $(VIM_SHARED)/$@
+vim_runtime_modules := $(addprefix $(VIM_SHARED)/, $(vim_runtime_files))
+$(vim_runtime_modules): $(VIM_SHARED)/%: $(vim_runtime_path)/% | $(LOCAL_BUILT_MODULE)
+	@echo "Install: $@"
+	@mkdir -p $(dir $@)
+	$(hide) cp $< $@
 
-ALL_DEFAULT_INSTALLED_MODULES += $(vim_runtime_files)
+ALL_DEFAULT_INSTALLED_MODULES += $(vim_runtime_modules)
 
 ALL_MODULES.$(LOCAL_MODULE).INSTALLED := \
   $(ALL_MODULES.$(LOCAL_MODULE).INSTALLED) \
-  $(addprefix $(VIM_SHARED)/, $(vim_runtime_files))
+  $(vim_runtime_modules)
 
 endif
